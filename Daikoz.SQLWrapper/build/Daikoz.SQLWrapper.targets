@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <UsingTask AssemblyFile="..\lib\netstandard2.0\Daikoz.SQLWrapper.dll" TaskName="Daikoz.SQLWrapper.SQLWrapperBuild"/>
+
+  <Target Name="SQLWrapperCompile" BeforeTargets="BeforeCompile">
+    <Daikoz.SQLWrapper.SQLWrapperBuild FileName="$(MSBuildProjectDirectory)\sqlwrapperconfig.json" IsCleanning="false" />
+  </Target>
+
+  <Target Name="SQLWrapperClean" AfterTargets="CoreClean">
+    <Daikoz.SQLWrapper.SQLWrapperBuild FileName="$(MSBuildProjectDirectory)\sqlwrapperconfig.json" IsCleanning="true" />
+  </Target>
+
+</Project>
