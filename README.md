@@ -8,7 +8,7 @@ SQL Wrapper get database structure to check SQL syntax and generate a XML with a
 Thus, SQL Wrapper can generate SQL call code from any language like C#, Java, Python, Javascript, VB .NET, ADO .NET ...
 
 # SQLWrapper Extention
-The SQLWrapper extantion is a pugin to add to our projet csproj. The SQL file is automatically generate.
+The SQLWrapper extention is a pugin to add to our projet csproj. The SQL file is automatically generate.
 
 # Architecture
 
