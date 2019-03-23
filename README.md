@@ -43,8 +43,8 @@ if no configuration not found in root of csproj, one is created:
 ]
 ```
 
-*RelativePath*: array of string - relative path where found SQL file
-*FilePattern*: string - sql file
-*Namespace*: string - namespace of generated class
-*ConnectionString*: array of string - list of connection string 
+* *RelativePath*: array of string - relative path where found SQL file
+* *FilePattern*: string - sql file
+* *Namespace*: string - namespace of generated class
+* *ConnectionString*: array of string - list of connection string 
 
