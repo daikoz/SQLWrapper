@@ -12,15 +12,15 @@ The SQLWrapper extention is a pugin to add to our projet csproj. The SQL file is
 
 # Architecture
 
-1. Read database structure
+1. **Read database structure**
   
   SQL Wrapper ----> read database ----> extract database structure (table, columns, ...)
 
-2. Extract SQL result from SQL file
+2. **Extract SQL result from SQL file**
 
   SQL File +  DB Structure  ----> SQLWrapper ----> XML File
 
-3. Generate our code 
+3. **Generate our code**
 
   XSLT (default or provide one) ----> SQL Wrapper ----> C# code wrapper
   
