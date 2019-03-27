@@ -1,8 +1,6 @@
 ﻿using Microsoft.Build.Utilities;
-using System;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 
 namespace Daikoz.SQLWrapper
 {
@@ -35,17 +33,9 @@ namespace Daikoz.SQLWrapper
                 return false;
             }
 
-            SQLWrapper sqlWrapper = new SQLWrapper(FileName, Log, IsCleanning, GetLinkerTimestampUtc(Assembly.GetExecutingAssembly()), this.BuildEngine5.ProjectFileOfTaskNode);
+            SQLWrapper sqlWrapper = new SQLWrapper(FileName, Log, IsCleanning/*, this.BuildEngine5.ProjectFileOfTaskNode*/);
             return sqlWrapper.Execute();
         }
-
-        private static DateTime GetLinkerTimestampUtc(Assembly assembly)
-        {
-            string location = assembly.Location;
-            FileInfo fileInfo = new FileInfo(location);
-            return fileInfo.LastWriteTimeUtc;
-        }
-
     }
 }
 

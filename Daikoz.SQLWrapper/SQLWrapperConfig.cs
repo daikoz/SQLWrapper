@@ -17,5 +17,8 @@ namespace Daikoz.SQLWrapper
         [DataMember]
         public string[] ConnectionStrings { get; set; }
 
+        [DataMember]
+        public string SQLWrapperPath { get; set; }
+
     }
 }

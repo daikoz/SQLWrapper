@@ -1,8 +1,5 @@
-﻿using Microsoft.Build.Evaluation;
-using Microsoft.Build.Framework;
+﻿using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization.Json;
@@ -11,18 +8,14 @@ namespace Daikoz.SQLWrapper
 {
     public class SQLWrapper
     {
-        private SQLWrapperConfig[] _config;
+        private readonly SQLWrapperConfig[] _config;
         private TaskLoggingHelper _log;
-        private bool _isCleanning;
-        private DateTime _buildTime;
-        private string _csprojPath;
+        private readonly bool _isCleanning;
 
-        public SQLWrapper(string fileConfigFile, TaskLoggingHelper log, bool isCleanning, DateTime buildTime, string csprojPath)
+        public SQLWrapper(string fileConfigFile, TaskLoggingHelper log, bool isCleanning)
         {
             _log = log;
             _isCleanning = isCleanning;
-            _buildTime = buildTime;
-            _csprojPath = csprojPath;
             try
             {
                 DataContractJsonSerializer ser = new DataContractJsonSerializer(typeof(SQLWrapperConfig[]));
@@ -47,11 +40,11 @@ namespace Daikoz.SQLWrapper
                     filePattern = "*.sql";
 
                 if (config.RelativePath == null || config.RelativePath.Length == 0)
-                    Execute("", filePattern, config.Namespace, config.ConnectionStrings);
+                    Execute("", filePattern, config.Namespace, config.ConnectionStrings, config.SQLWrapperPath);
                 else
                 {
                     foreach (string relativePath in config.RelativePath)
-                        Execute(relativePath, filePattern, config.Namespace, config.ConnectionStrings);
+                        Execute(relativePath, filePattern, config.Namespace, config.ConnectionStrings, config.SQLWrapperPath);
                 }
             }
 
@@ -59,7 +52,7 @@ namespace Daikoz.SQLWrapper
             return true;
         }
 
-        private void Execute(string relativePath, string filePattern, string namespaceName, string[] connectionString)
+        private void Execute(string relativePath, string filePattern, string namespaceName, string[] connectionString, string sqlWrapperPath)
         {
             string directory = Path.Combine(Directory.GetCurrentDirectory(), relativePath);
             if (!Directory.Exists(directory))
@@ -79,7 +72,16 @@ namespace Daikoz.SQLWrapper
                     }
                     else
                     {
-                        if (!File.Exists(outputFile) || new FileInfo(outputFile).LastWriteTimeUtc <= _buildTime || new FileInfo(outputFile).LastWriteTimeUtc <= new FileInfo(file).LastWriteTimeUtc)
+                        string assemblyDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetAssembly(typeof(SQLWrapper)).Location);
+                        if (!Directory.Exists(Path.Combine(assemblyDirectory, "tools")))
+                        {
+                            // nuget
+                            assemblyDirectory = Path.Combine(assemblyDirectory, "..", "..");
+                        }
+                        if (string.IsNullOrWhiteSpace(sqlWrapperPath))
+                            sqlWrapperPath = Path.Combine(assemblyDirectory, "tools", "SQLWrapper.exe");
+
+                        if (!File.Exists(outputFile) || new FileInfo(outputFile).LastWriteTimeUtc <= new FileInfo(sqlWrapperPath).LastWriteTimeUtc || new FileInfo(outputFile).LastWriteTimeUtc <= new FileInfo(file).LastWriteTimeUtc)
                         {
                             using (Process sqlwrapperProcess = new Process())
                             {
@@ -91,19 +93,8 @@ namespace Daikoz.SQLWrapper
 
                                 string className = directoriesName.Length >= 1 ? directoriesName[directoriesName.Length - 1] : "SQLWrapper";
 
-                                string assemblyDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetAssembly(typeof(SQLWrapper)).Location);
-                                if (Directory.Exists(Path.Combine(assemblyDirectory, "tools")))
-                                {
-                                    // Debug
-                                    sqlwrapperProcess.StartInfo.WorkingDirectory = assemblyDirectory;
-                                }
-                                else
-                                {
-                                    // nuget
-                                    sqlwrapperProcess.StartInfo.WorkingDirectory = Path.Combine(assemblyDirectory, "..", "..");
-                                }
-
-                                sqlwrapperProcess.StartInfo.FileName = Path.Combine(sqlwrapperProcess.StartInfo.WorkingDirectory, "tools", "SQLWrapper.exe");
+                                sqlwrapperProcess.StartInfo.WorkingDirectory = assemblyDirectory;
+                                sqlwrapperProcess.StartInfo.FileName = sqlWrapperPath;
                                 sqlwrapperProcess.StartInfo.UseShellExecute = false;
                                 sqlwrapperProcess.StartInfo.CreateNoWindow = true;
                                 sqlwrapperProcess.StartInfo.RedirectStandardOutput = true;
