@@ -5,7 +5,7 @@
     <LangVersion>latest</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>0.1.2</Version>
+    <Version>0.1.3</Version>
     <Authors>DAIKOZ</Authors>
     <Company>DAIKOZ</Company>
     <Copyright>© 2019 - DAIKOZ - All rights reserved</Copyright>
@@ -13,7 +13,7 @@
     <PackageProjectUrl>https://www.sqlwrapper.com</PackageProjectUrl>
     <RepositoryUrl>https://github.com/daikoz/SQLWrapper</RepositoryUrl>
     <PackageTags>sql;wrapper;sqlwrapper;ado;dapper;mysql;mariadb;</PackageTags>
-    <PackageReleaseNotes>beta 1</PackageReleaseNotes>
+    <PackageReleaseNotes></PackageReleaseNotes>
 	<Title>SQLWrapper</Title>
     <Description>A high performance SQL Wrapper and syntax checking supporting MySQL, MariaDB... SQLWrapper generate call code from SQL file and check SQL syntax before compile task. The call automatically created and check syntax identify database changes.
 
@@ -22,9 +22,11 @@ SQL Wrapper is not a ORM: it generate code form SQL request. It have better perf
 SQL Wrapper get database structure to check SQL syntax and generate a XML with all returned columns of SQL request. From this XML, you can apply our XLST (or the XLST provided) to generate the code.
 
 Thus, SQL Wrapper can generate SQL call code from any language like C#, Java, Python, Javascript, VB .NET, ADO .NET ...</Description>
-    <AssemblyVersion>0.1.2.0</AssemblyVersion>
-    <FileVersion>0.1.2.0</FileVersion>
-    <PackageLicenseUrl>https://www.sqlwrapper.com</PackageLicenseUrl>
+    <AssemblyVersion>0.1.3.0</AssemblyVersion>
+    <FileVersion>0.1.3.0</FileVersion>
+    <PackageLicenseUrl></PackageLicenseUrl>
+    <PackageLicenseExpression></PackageLicenseExpression>
+    <PackageIconUrl>https://www.daikoz.com/img/sqlwrapper.png</PackageIconUrl>
   </PropertyGroup>
 
   <ItemGroup>
