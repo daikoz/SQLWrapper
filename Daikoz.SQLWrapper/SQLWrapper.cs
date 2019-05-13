@@ -10,7 +10,7 @@ namespace Daikoz.SQLWrapper
     public class SQLWrapper
     {
         private readonly SQLWrapperConfig[] _config;
-        private TaskLoggingHelper _log;
+        private readonly TaskLoggingHelper _log;
         private readonly bool _isCleanning;
 
         public SQLWrapper(string fileConfigFile, TaskLoggingHelper log, bool isCleanning)
@@ -111,7 +111,7 @@ namespace Daikoz.SQLWrapper
             else
             {
                 _log.LogMessage(MessageImportance.Low, "SQLWrapper: Find in directory " + directory + ": " + filePattern);
-                List<string> listDirectories = new List<string>(Directory.EnumerateDirectories(directory, "", SearchOption.AllDirectories));
+                List<string> listDirectories = new List<string>(Directory.GetDirectories(directory, "*", SearchOption.AllDirectories));
                 listDirectories.Add(directory);
                 foreach (string subdirectory in listDirectories)
                 {
