@@ -7,22 +7,63 @@
 <xsl:preserve-space elements="*" />
 
 <xsl:template match="type">
-  <xsl:if test="contains(., 'unsigned')">u</xsl:if>
-  <xsl:choose>
-    <xsl:when test=". = 'bit(1)'">bool<xsl:if test="@isnull = 1">?</xsl:if></xsl:when>
-    <xsl:when test="starts-with(., 'tinyint(')">byte<xsl:if test="@isnull = 1">?</xsl:if></xsl:when>
-    <xsl:when test="starts-with(., 'smallint(')">short<xsl:if test="@isnull = 1">?</xsl:if></xsl:when>
-    <xsl:when test="starts-with(., 'mediumint(')">int<xsl:if test="@isnull = 1">?</xsl:if></xsl:when>
-    <xsl:when test="starts-with(., 'int(')">int<xsl:if test="@isnull = 1">?</xsl:if></xsl:when>
-    <xsl:when test="starts-with(., 'bigint(')">long<xsl:if test="@isnull = 1">?</xsl:if></xsl:when>
-    <xsl:when test="starts-with(., 'decimal(')">decimal<xsl:if test="@isnull = 1">?</xsl:if></xsl:when>
-    <xsl:when test="starts-with(., 'varchar(')">string</xsl:when>
-    <xsl:when test="starts-with(., 'text')">string</xsl:when>
-    <xsl:when test="starts-with(., 'timestamp')">DateTime<xsl:if test="@isnull = 1">?</xsl:if></xsl:when>
+  <xsl:if test="contains(., 'unsigned')">
+    <xsl:choose>
+      <xsl:when test=". = 'bit(1)'">bool<xsl:if test="@isnull = 1">?</xsl:if></xsl:when>
+      <xsl:when test="starts-with(., 'tinyint(')">byte<xsl:if test="@isnull = 1">?</xsl:if></xsl:when>
+      <xsl:when test="starts-with(., 'smallint(')">ushort<xsl:if test="@isnull = 1">?</xsl:if></xsl:when>
+      <xsl:when test="starts-with(., 'mediumint(')">uint<xsl:if test="@isnull = 1">?</xsl:if></xsl:when>
+      <xsl:when test="starts-with(., 'int(')">uint<xsl:if test="@isnull = 1">?</xsl:if></xsl:when>
+      <xsl:when test="starts-with(., 'bigint(')">ulong<xsl:if test="@isnull = 1">?</xsl:if></xsl:when>
+      <xsl:otherwise><xsl:value-of select="."/><xsl:if test="@isnull = 1">?</xsl:if>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:if>
+  <xsl:if test="not(contains(., 'unsigned'))">
+    <xsl:choose>
+      <xsl:when test=". = 'bit(1)'">bool<xsl:if test="@isnull = 1">?</xsl:if></xsl:when>
+      <xsl:when test="starts-with(., 'char(1)')">char<xsl:if test="@isnull = 1">?</xsl:if></xsl:when>      
+      <xsl:when test="starts-with(., 'char(')">string<xsl:if test="@isnull = 1">?</xsl:if></xsl:when>      
+      <xsl:when test="starts-with(., 'tinyint(')">sbyte<xsl:if test="@isnull = 1">?</xsl:if></xsl:when>
+      <xsl:when test="starts-with(., 'smallint(')">short<xsl:if test="@isnull = 1">?</xsl:if></xsl:when>
+      <xsl:when test="starts-with(., 'mediumint(')">int<xsl:if test="@isnull = 1">?</xsl:if></xsl:when>
+      <xsl:when test="starts-with(., 'int(')">int<xsl:if test="@isnull = 1">?</xsl:if></xsl:when>
+      <xsl:when test="starts-with(., 'bigint(')">long<xsl:if test="@isnull = 1">?</xsl:if></xsl:when>
+      <xsl:when test="starts-with(., 'decimal(')">decimal<xsl:if test="@isnull = 1">?</xsl:if></xsl:when>
+      <xsl:when test="starts-with(., 'varchar(')">string</xsl:when>
+      <xsl:when test="starts-with(., 'text')">string</xsl:when>
+      <xsl:when test="starts-with(., 'timestamp')">DateTime<xsl:if test="@isnull = 1">?</xsl:if></xsl:when>
+      <xsl:otherwise><xsl:value-of select="."/><xsl:if test="@isnull = 1">?</xsl:if>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:if>
+  <xsl:if test="@array = 1">[]</xsl:if>
+  <xsl:if test="@array = 1 and starts-with(., 'char(')">ERROR_SQL_INJECTION</xsl:if>
+</xsl:template>
 
-    <xsl:otherwise><xsl:value-of select="."/><xsl:if test="@isnull = 1">?</xsl:if>
-    </xsl:otherwise>
-  </xsl:choose>
+<xsl:template match="query" mode="outputassign">
+                    <xsl:for-each select="output">
+                      <xsl:variable name="returntype">
+                        <xsl:apply-templates select="type"/>
+                      </xsl:variable>
+                      <xsl:choose>
+                        <xsl:when test="$returntype = 'bool'">
+                          <xsl:value-of select="name"/> = (ulong) reader[<xsl:value-of select="position()-1" />] == 1,
+                        </xsl:when>
+                        <xsl:when test="$returntype = 'char'">
+                          <xsl:value-of select="name"/> = ((string)reader[<xsl:value-of select="position()-1" />])[0],
+                        </xsl:when>
+                        <xsl:when test="$returntype = 'char?'">
+                          <xsl:value-of select="name"/> = reader[<xsl:value-of select="position()-1" />] == DBNull.Value ? (char?) null :((string)reader[<xsl:value-of select="position()-1" />])[0],
+                        </xsl:when>
+                        <xsl:when test="$returntype = 'string' or contains($returntype, '?')">
+                          <xsl:value-of select="name"/> = reader[<xsl:value-of select="position()-1" />] == DBNull.Value ? null : (<xsl:apply-templates select="type"/>)reader[<xsl:value-of select="position()-1" />],
+                        </xsl:when>
+                        <xsl:otherwise>
+                          <xsl:value-of select="name"/> = (<xsl:apply-templates select="type"/>)reader[<xsl:value-of select="position()-1" />],
+                        </xsl:otherwise>
+                      </xsl:choose>
+                    </xsl:for-each>
 </xsl:template>
 
 <xsl:template match="output">            public <xsl:apply-templates select="./type"/><xsl:text> </xsl:text><xsl:value-of select="name"/> { get; set; }
@@ -41,10 +82,10 @@
             {
                 Connection = conn,
                 Transaction = transaction,
-                CommandText = @"<xsl:value-of select="text"/>"
+                CommandText = @"<xsl:value-of select="text"/>"<xsl:for-each select="query/input/type[@array = 1]">.Replace("@<xsl:value-of select="../name"/>", String.Join(",", <xsl:value-of select="../name"/>))</xsl:for-each>
             };
-            <xsl:for-each select="query/input">sqlCmd.Parameters.AddWithValue("@<xsl:value-of select="name"/>", <xsl:value-of select="name"/>);
-            </xsl:for-each>
+            <xsl:for-each select="query/input"><xsl:if test="type[@array != 1]">sqlCmd.Parameters.AddWithValue("@<xsl:value-of select="name"/>", <xsl:value-of select="name"/>);
+            </xsl:if></xsl:for-each>
             if (conn.State != System.Data.ConnectionState.Open)
                 await conn.OpenAsync();
             
@@ -63,10 +104,11 @@
             {
                 Connection = conn,
                 Transaction = transaction,
-                CommandText = @"<xsl:value-of select="text"/>"
+                CommandText = @"<xsl:value-of select="text"/>"<xsl:for-each select="query/input/type[@array = 1]">.Replace("@<xsl:value-of select="../name"/>", String.Join(",", <xsl:value-of select="../name"/>))</xsl:for-each>
             };
-            <xsl:for-each select="query/input">sqlCmd.Parameters.AddWithValue("@<xsl:value-of select="name"/>", <xsl:value-of select="name"/>);
-            </xsl:for-each>
+            <xsl:for-each select="query/input"><xsl:if test="type[@array != 1]">sqlCmd.Parameters.AddWithValue("@<xsl:value-of select="name"/>", <xsl:value-of select="name"/>);
+            </xsl:if></xsl:for-each>
+
             if (conn.State != System.Data.ConnectionState.Open)
                 await conn.OpenAsync();
             
@@ -89,10 +131,11 @@
             {
                 Connection = conn,
                 Transaction = transaction,
-                CommandText = @"<xsl:value-of select="text"/>"
+                CommandText = @"<xsl:value-of select="text"/>"<xsl:for-each select="query/input/type[@array = 1]">.Replace("@<xsl:value-of select="../name"/>", String.Join(",", <xsl:value-of select="../name"/>))</xsl:for-each>
             };
-            <xsl:for-each select="query/input">sqlCmd.Parameters.AddWithValue("@<xsl:value-of select="name"/>", <xsl:value-of select="name"/>);
-            </xsl:for-each>
+            <xsl:for-each select="query/input"><xsl:if test="type[@array != 1]">sqlCmd.Parameters.AddWithValue("@<xsl:value-of select="name"/>", <xsl:value-of select="name"/>);
+            </xsl:if></xsl:for-each>
+
             if (conn.State != System.Data.ConnectionState.Open)
                 await conn.OpenAsync();
                 
@@ -100,15 +143,7 @@
                 if (reader != null &amp;&amp; reader.Read())
                     return new <xsl:value-of select="name"/>Result
                     {
-                        <xsl:for-each select="query/output">
-                        <xsl:variable name="returntype"><xsl:apply-templates select="type"/></xsl:variable>
-                        <xsl:if test="$returntype = 'string'">
-                        <xsl:value-of select="name"/> = reader[<xsl:value-of select="position()-1" />] == DBNull.Value ? null : (<xsl:apply-templates select="type"/>)reader[<xsl:value-of select="position()-1" />],
-                        </xsl:if>
-                        <xsl:if test="$returntype != 'string'">
-                        <xsl:value-of select="name"/> = (<xsl:apply-templates select="type"/>)reader[<xsl:value-of select="position()-1" />],
-                        </xsl:if>
-                        </xsl:for-each>
+                        <xsl:apply-templates select="query" mode="outputassign"/>
                     };
 
             return null;
@@ -132,10 +167,11 @@ Return one multiple columns
             {
                 Connection = conn,
                 Transaction = transaction,
-                CommandText = @"<xsl:value-of select="text"/>"
+                CommandText = @"<xsl:value-of select="text"/>"<xsl:for-each select="query/input/type[@array = 1]">.Replace("@<xsl:value-of select="../name"/>", String.Join(",", <xsl:value-of select="../name"/>))</xsl:for-each>
             };
-            <xsl:for-each select="query/input">sqlCmd.Parameters.AddWithValue("@<xsl:value-of select="name"/>", <xsl:value-of select="name"/>);
-            </xsl:for-each>
+            <xsl:for-each select="query/input"><xsl:if test="type[@array != 1]">sqlCmd.Parameters.AddWithValue("@<xsl:value-of select="name"/>", <xsl:value-of select="name"/>);
+            </xsl:if></xsl:for-each>
+
             if (conn.State != System.Data.ConnectionState.Open)
                 await conn.OpenAsync();
             
@@ -145,15 +181,7 @@ Return one multiple columns
                     while(reader.Read())
                         listResult.Add(new <xsl:value-of select="name"/>Result
                         {
-                            <xsl:for-each select="query/output">
-                            <xsl:variable name="returntype"><xsl:apply-templates select="type"/></xsl:variable>
-                            <xsl:if test="$returntype = 'string'">
-                            <xsl:value-of select="name"/> = reader[<xsl:value-of select="position()-1" />] == DBNull.Value ? null : (<xsl:apply-templates select="type"/>)reader[<xsl:value-of select="position()-1" />],
-                            </xsl:if>
-                            <xsl:if test="$returntype != 'string'">
-                            <xsl:value-of select="name"/> = (<xsl:apply-templates select="type"/>)reader[<xsl:value-of select="position()-1" />],
-                            </xsl:if>
-                            </xsl:for-each>
+                            <xsl:apply-templates select="query" mode="outputassign"/>
                         });
 
             return listResult;

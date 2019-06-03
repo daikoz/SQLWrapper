@@ -48,11 +48,49 @@ namespace Daikoz.SQLWrapper
                     filePattern = "*.sql";
 
                 if (config.RelativePath == null || config.RelativePath.Length == 0)
-                    Execute("", filePattern, config.Namespace, config.ConnectionStrings, config.SQLWrapperPath, cacheDBPath);
+                    Execute("", filePattern, config.Namespace, config.SQLWrapperPath, cacheDBPath, config.CustomTypes);
                 else
                 {
                     foreach (string relativePath in config.RelativePath)
-                        Execute(relativePath, filePattern, config.Namespace, config.ConnectionStrings, config.SQLWrapperPath, cacheDBPath);
+                        Execute(relativePath, filePattern, config.Namespace, config.SQLWrapperPath, cacheDBPath, config.CustomTypes);
+                }
+
+                if (config.HelperRelativePath != null)
+                {
+                    using (Process sqlwrapperProcess = new Process())
+                    {
+                        string outputPath = Path.Combine(System.Environment.CurrentDirectory, config.HelperRelativePath);
+                        string sqlWrapperPath = config.SQLWrapperPath;
+                        string assemblyDirectory = Path.GetDirectoryName(System.Reflection.Assembly.GetAssembly(typeof(SQLWrapper)).Location);
+                        if (!Directory.Exists(Path.Combine(assemblyDirectory, "tools")))
+                        {
+                            // nuget
+                            assemblyDirectory = Path.Combine(assemblyDirectory, "..", "..");
+                        }
+                        if (string.IsNullOrWhiteSpace(sqlWrapperPath))
+                            sqlWrapperPath = Path.Combine(assemblyDirectory, "tools", "SQLWrapper.exe");
+
+                        sqlwrapperProcess.StartInfo.WorkingDirectory = assemblyDirectory;
+                        sqlwrapperProcess.StartInfo.FileName = sqlWrapperPath;
+                        sqlwrapperProcess.StartInfo.UseShellExecute = false;
+                        sqlwrapperProcess.StartInfo.CreateNoWindow = true;
+                        sqlwrapperProcess.StartInfo.RedirectStandardOutput = true;
+                        sqlwrapperProcess.StartInfo.RedirectStandardError = true;
+                        sqlwrapperProcess.StartInfo.Arguments = "helper -o " + outputPath + " -p namespace=" + config.Namespace + " -x " + Path.Combine("tools", "Template", "CSharp", "Helper.xslt") + " -d " + cacheDBPath;
+                        sqlwrapperProcess.Start();
+
+                        // Synchronously read the standard output of the spawned process. 
+                        StreamReader readerOutput = sqlwrapperProcess.StandardOutput;
+                        _log.LogWarning(readerOutput.ReadToEnd());
+
+                        StreamReader readerError = sqlwrapperProcess.StandardError;
+                        string error = readerError.ReadToEnd();
+                        if (!string.IsNullOrWhiteSpace(error))
+                            _log.LogError(error);
+
+
+                        sqlwrapperProcess.WaitForExit();
+                    }
                 }
 
                 ++configIdx;
@@ -103,7 +141,7 @@ namespace Daikoz.SQLWrapper
             }
         }
 
-        private void Execute(string relativePath, string filePattern, string namespaceName, string[] connectionString, string sqlWrapperPath, string cacheDBPath)
+        private void Execute(string relativePath, string filePattern, string namespaceName, string sqlWrapperPath, string cacheDBPath, string[] customTypes)
         {
             string directory = Path.Combine(Directory.GetCurrentDirectory(), relativePath);
             if (!Directory.Exists(directory))
@@ -111,8 +149,10 @@ namespace Daikoz.SQLWrapper
             else
             {
                 _log.LogMessage(MessageImportance.Low, "SQLWrapper: Find in directory " + directory + ": " + filePattern);
-                List<string> listDirectories = new List<string>(Directory.GetDirectories(directory, "*", SearchOption.AllDirectories));
-                listDirectories.Add(directory);
+                List<string> listDirectories = new List<string>(Directory.GetDirectories(directory, "*", SearchOption.AllDirectories))
+                {
+                    directory
+                };
                 foreach (string subdirectory in listDirectories)
                 {
                     List<string> listFiles = new List<string>(Directory.EnumerateFiles(subdirectory, filePattern, SearchOption.TopDirectoryOnly));
@@ -161,7 +201,13 @@ namespace Daikoz.SQLWrapper
                                     sqlwrapperProcess.StartInfo.Arguments = "wrapper -i";
                                     foreach (string file in listFiles)
                                         sqlwrapperProcess.StartInfo.Arguments += " \"" + file.Replace("\"", "\"\"") + "\" ";
-                                    sqlwrapperProcess.StartInfo.Arguments += " -o " + outputFile + " -p namespace=" + newNameSpace + " classname=" + className + " -x " + Path.Combine("tools", "Template", "charpADO.xslt") + " -d " + cacheDBPath;
+                                    sqlwrapperProcess.StartInfo.Arguments += " -o " + outputFile + " -p namespace=" + newNameSpace + " classname=" + className + " -x " + Path.Combine("tools", "Template", "CSharp", "ADO.xslt") + " -d " + cacheDBPath;
+                                    if (customTypes != null && customTypes.Length > 0)
+                                    {
+                                        sqlwrapperProcess.StartInfo.Arguments += " -t ";
+                                        foreach (string type in customTypes)
+                                            sqlwrapperProcess.StartInfo.Arguments += " \"" + type.Replace("\"", "\"\"") + "\" ";
+                                    }
                                     sqlwrapperProcess.Start();
 
                                     // Synchronously read the standard output of the spawned process. 

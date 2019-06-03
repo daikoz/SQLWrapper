@@ -19,7 +19,7 @@ namespace Daikoz.SQLWrapper.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -69,7 +69,8 @@ namespace Daikoz.SQLWrapper.Properties {
         ///    &quot;ConnectionStrings&quot;: [
         ///      &quot;server=mysqlserver;user id=user1;password=pwd;database=DB1;&quot;,
         ///      &quot;server=mysqlserver;user id=user2;password=pwd;database=DB2;&quot;
-        ///    ]
+        ///    ],
+        ///    &quot;HelperRelativePath&quot;: &quot;&quot;
         ///  }
         ///].
         /// </summary>

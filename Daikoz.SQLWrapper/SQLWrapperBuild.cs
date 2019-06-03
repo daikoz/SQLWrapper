@@ -12,7 +12,7 @@ namespace Daikoz.SQLWrapper
 
         public override bool Execute()
         {
-            // Debugger.Launch();
+            //Debugger.Launch();
 
             if (FileName == null)
             {

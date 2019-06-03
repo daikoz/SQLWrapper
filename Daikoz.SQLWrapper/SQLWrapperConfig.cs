@@ -20,5 +20,10 @@ namespace Daikoz.SQLWrapper
         [DataMember]
         public string SQLWrapperPath { get; set; }
 
+        [DataMember]
+        public string[] CustomTypes { get; set; }
+
+        [DataMember]
+        public string HelperRelativePath { get; set; }
     }
 }

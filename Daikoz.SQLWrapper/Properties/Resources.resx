@@ -126,7 +126,8 @@
     "ConnectionStrings": [
       "server=mysqlserver;user id=user1;password=pwd;database=DB1;",
       "server=mysqlserver;user id=user2;password=pwd;database=DB2;"
-    ]
+    ],
+    "HelperRelativePath": ""
   }
 ]</value>
   </data>
