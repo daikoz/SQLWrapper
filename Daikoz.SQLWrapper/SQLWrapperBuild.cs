@@ -1,5 +1,5 @@
 ﻿using Microsoft.Build.Utilities;
-using System.Diagnostics;
+using System;
 using System.IO;
 
 namespace Daikoz.SQLWrapper
@@ -12,29 +12,30 @@ namespace Daikoz.SQLWrapper
 
         public override bool Execute()
         {
-            //Debugger.Launch();
+            // Debugger.Launch();
 
-            if (FileName == null)
+            try
             {
-                Log.LogError("sqlwrapper configuration does not exist. Create sqlwrapperconfig.json in root of our project.");
-                return false;
-            }
-
-            FileInfo configFile = new FileInfo(FileName);
-
-            if (!configFile.Exists)
-            {
-                Log.LogError(configFile.FullName + " does not exist. A default is created.");
-                using (StreamWriter stream = File.CreateText(configFile.FullName))
+                FileInfo configFile = new FileInfo(FileName);
+                if (FileName == null || !configFile.Exists)
                 {
-                    stream.WriteLine(Properties.Resources.DefaultConfiguration);
-                    stream.Close();
+                    Log.LogError("SQLWrapper", "SW000002", "", "sqlwrapperconfig.json", 0, 0, 0, 0, "SQLWrapper configuration does not exist. A default sqlwrapperconfig.json is created in root of our project.", null);
+                    using (StreamWriter stream = File.CreateText(configFile.FullName))
+                    {
+                        stream.WriteLine(Properties.Resources.DefaultConfiguration);
+                        stream.Close();
+                    }
+                    return false;
                 }
-                return false;
-            }
 
-            SQLWrapper sqlWrapper = new SQLWrapper(FileName, Log, IsCleanning/*, this.BuildEngine5.ProjectFileOfTaskNode*/);
-            return sqlWrapper.Execute();
+                SQLWrapperExecute sqlWrapper = new SQLWrapperExecute(FileName, Log, IsCleanning);
+                return sqlWrapper.Execute();
+            }
+            catch (Exception ex)
+            {
+                Log.LogError("SQLWrapper", "SW000001", "", "", 0, 0, 0, 0, ex.Message, null);
+            }
+            return false;
         }
     }
 }

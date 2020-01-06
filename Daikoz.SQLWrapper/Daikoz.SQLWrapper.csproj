@@ -5,7 +5,7 @@
     <LangVersion>latest</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>0.4</Version>
+    <Version>1.0.0</Version>
     <Authors>DAIKOZ</Authors>
     <Company>DAIKOZ</Company>
     <Copyright>© 2019 - DAIKOZ - All rights reserved</Copyright>
@@ -14,25 +14,34 @@
     <RepositoryUrl>https://github.com/daikoz/SQLWrapper</RepositoryUrl>
     <PackageTags>sql;wrapper;sqlwrapper;ado;dapper;mysql;mariadb;</PackageTags>
     <PackageReleaseNotes></PackageReleaseNotes>
-	<Title>SQLWrapper</Title>
-    <Description>A high performance SQL Wrapper and syntax checking supporting MySQL, MariaDB... SQLWrapper generate call code from SQL file and check SQL syntax before compile task. The call automatically created and check syntax identify database changes.
+    <Title>SQLWrapper</Title>
+    <Description>
+      A high performance SQL Wrapper and syntax checking supporting MySQL, MariaDB... SQLWrapper generate call code from SQL file and check SQL syntax before compile task. The call automatically created and check syntax identify database changes.
 
-SQL Wrapper is not a ORM: it generate code form SQL request. It have better performance than linq or EntityFramework and there are not SQL limitation.
+      SQL Wrapper is not a ORM: it generate code form SQL request. It have better performance than linq or EntityFramework and there are not SQL limitation.
 
-SQL Wrapper get database structure to check SQL syntax and generate a XML with all returned columns of SQL request. From this XML, you can apply our XLST (or the XLST provided) to generate the code.
+      SQL Wrapper get database structure to check SQL syntax and generate a XML with all returned columns of SQL request. From this XML, you can apply our XLST (or the XLST provided) to generate the code.
 
-Thus, SQL Wrapper can generate SQL call code from any language like C#, Java, Python, Javascript, VB .NET, ADO .NET ...</Description>
-    <AssemblyVersion>0.4.0</AssemblyVersion>
-    <FileVersion>0.4.0</FileVersion>
+      Thus, SQL Wrapper can generate SQL call code from any language like C#, Java, Python, Javascript, VB .NET, ADO .NET ...
+    </Description>
+    <AssemblyVersion>0.4.3</AssemblyVersion>
+    <FileVersion>0.4.3</FileVersion>
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageLicenseExpression></PackageLicenseExpression>
     <PackageIconUrl>https://www.daikoz.com/img/sqlwrapper.png</PackageIconUrl>
+    <BuildOutputTargetFolder>dll</BuildOutputTargetFolder>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <NoWarn>NU5100</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Build.Framework" Version="16.0.461" />
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.0.461" />
-    <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
+    <PackageReference Include="Microsoft.Build.Framework" Version="16.4.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.4.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" PrivateAssets="All" />
   </ItemGroup>
 
   <ItemGroup>
@@ -40,11 +49,13 @@ Thus, SQL Wrapper can generate SQL call code from any language like C#, Java, Py
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Properties\PublishProfiles\" />
+    <Content Include="tools/**/*.*" PackagePath="tools\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="tools/**/*.*" PackagePath="tools\" />
+    <Compile Remove="Properties\PublishProfiles\**" />
+    <EmbeddedResource Remove="Properties\PublishProfiles\**" />
+    <None Remove="Properties\PublishProfiles\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -59,7 +70,10 @@ Thus, SQL Wrapper can generate SQL call code from any language like C#, Java, Py
     <Content Update="tools\SQLWrapper.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Update="tools\Template\charpADO.xslt">
+    <Content Update="tools\Template\csharp\ADO.xslt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="tools\Template\csharp\helper.xslt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -71,8 +85,18 @@ Thus, SQL Wrapper can generate SQL call code from any language like C#, Java, Py
     </EmbeddedResource>
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="REM dotnet publish ../../App/SQLWrapper/ -c Release -r win-x64&#xD;&#xA;robocopy /MIR /NP ../../App\SQLWrapper\bin\Release\netcoreapp2.2\win-x64\publish tools&#xD;&#xA;del tools\*.json&#xD;&#xA;del tools\*.pdb" />
+  <Target Name="PackTaskDependencies" BeforeTargets="GenerateNuspec">
+    <!--
+    The include needs to happen after output has been copied to build output folder
+    but before NuGet generates a nuspec. See https://github.com/NuGet/Home/issues/4704.
+    -->
+    <ItemGroup>
+      <_PackageFiles Include="bin\$(Configuration)\*\Microsoft.Build.Framework.dll;bin\$(Configuration)\*\Microsoft.Build.Utilities.Core.dll;bin\$(Configuration)\*\Microsoft.CSharp.dll;bin\$(Configuration)\*\System.Collections.Immutable.dll;bin\$(Configuration)\*\System.Runtime.Serialization.Primitives.dll;bin\$(Configuration)\*\System.Threading.dll;bin\$(Configuration)\*\System.Threading.Thread.dll">
+        <PackagePath>dll\</PackagePath>
+        <Visible>false</Visible>
+        <BuildAction>Content</BuildAction>
+      </_PackageFiles>
+    </ItemGroup>
   </Target>
 
 </Project>
