@@ -7,6 +7,10 @@ SQL Wrapper get database structure to check SQL syntax and generate a XML with a
 
 Thus, SQL Wrapper can generate SQL call code from any language like C#, Java, Python, Javascript, VB .NET, ADO .NET ...
 
+# nuget installation
+
+Use nuget to install package [Daikoz.SQLWrapper package](https://www.nuget.org/packages/Daikoz.SQLWrapper/)
+
 # SQLWrapper Extention
 The SQLWrapper extention is a pugin to add to our projet csproj. The SQL file is automatically generate.
 
