@@ -3,9 +3,11 @@ using Microsoft.Build.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Runtime.Serialization.Json;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Daikoz.SQLWrapper
 {
@@ -83,7 +85,7 @@ namespace Daikoz.SQLWrapper
                     argument.Append(" -p namespace=" + config.Namespace);
                     argument.Append(" -x " + helperPath);
 
-                    StartProcess(config.SQLWrapperPath, argument.ToString(), "SQLWrapper Helper", helperPath, "SW000004");
+                    StartProcess(config.SQLWrapperPath, argument.ToString(), "SQLWrapper Helper", helperPath);
                 }
 
                 ++configIdx;
@@ -93,7 +95,7 @@ namespace Daikoz.SQLWrapper
             return true;
         }
 
-        private void StartProcess(string sqlWrapperPath, string arguments, string logCategory, string logFile, string logCode)
+        private void StartProcess(string sqlWrapperPath, string arguments, string logCategory, string logFile)
         {
             using Process sqlwrapperProcess = new Process();
 
@@ -120,12 +122,27 @@ namespace Daikoz.SQLWrapper
             StreamReader readerOutput = sqlwrapperProcess.StandardOutput;
             string error = readerOutput.ReadToEnd();
             if (!string.IsNullOrWhiteSpace(error))
-                _log.LogWarning(logCategory, logCode, "", logFile, 0, 0, 0, 0, error, null);
+                _log.LogWarning(logCategory, "", "", logFile, 0, 0, 0, 0, error, null);
 
             StreamReader readerError = sqlwrapperProcess.StandardError;
             error = readerError.ReadToEnd();
             if (!string.IsNullOrWhiteSpace(error))
-                _log.LogError(logCategory, logCode, "", logFile, 0, 0, 0, 0, error, null);
+            {
+                int lineNumber = 0;
+                int columnNumber = 0;
+                string code = "";
+                Match match = Regex.Match(error, @"(?<filepath>.*):\((?<line>.*),(?<position>\d+)\):(?<code>[^:]*):(?<message>.*)");
+                if (match.Success)
+                {
+                    logFile = match.Groups["filepath"].Value;
+                    lineNumber = int.Parse(match.Groups["line"].Value, CultureInfo.InvariantCulture);
+                    columnNumber = int.Parse(match.Groups["position"].Value, CultureInfo.InvariantCulture);
+                    code = match.Groups["code"].Value.TrimStart();
+                    error = match.Groups["message"].Value.TrimStart();
+                }
+
+                _log.LogError(logCategory, code, "", logFile, lineNumber, columnNumber, 0, 0, error, null);
+            }
 
             sqlwrapperProcess.WaitForExit();
         }
@@ -146,7 +163,7 @@ namespace Daikoz.SQLWrapper
                 argument.Append(" \"" + connectionString.Replace("\"", "\"\"") + "\" ");
             argument.Append(" -o " + cacheDBPath);
 
-            StartProcess(sqlWrapperPath, argument.ToString(), "SQLWrapper Database", cacheDBPath, "SW000006");
+            StartProcess(sqlWrapperPath, argument.ToString(), "SQLWrapper Database", cacheDBPath);
 
             _cacheDBModifiedDate = DateTime.UtcNow;
         }
@@ -206,7 +223,7 @@ namespace Daikoz.SQLWrapper
                                 }
                                 argument.Append(" -x " + Path.Combine("tools", "Template", "CSharp", "ADO.xslt"));
 
-                                StartProcess(sqlWrapperPath, argument.ToString(), "SQLWrapper Wrapper", subdirectory, "SW000009");
+                                StartProcess(sqlWrapperPath, argument.ToString(), "SQLWrapper Wrapper", subdirectory);
                             }
                         }
                     }

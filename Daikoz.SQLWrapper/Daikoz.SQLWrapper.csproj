@@ -5,7 +5,7 @@
     <LangVersion>latest</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>1.0.0</Version>
+    <Version>1.1.7</Version>
     <Authors>DAIKOZ</Authors>
     <Company>DAIKOZ</Company>
     <Copyright>© 2019 - DAIKOZ - All rights reserved</Copyright>
@@ -24,19 +24,19 @@
 
       Thus, SQL Wrapper can generate SQL call code from any language like C#, Java, Python, Javascript, VB .NET, ADO .NET ...
     </Description>
-    <AssemblyVersion>0.4.3</AssemblyVersion>
-    <FileVersion>0.4.3</FileVersion>
+    <AssemblyVersion>1.1.7.0</AssemblyVersion>
+    <FileVersion>1.1.7.0</FileVersion>
     <PackageLicenseUrl></PackageLicenseUrl>
-    <PackageLicenseExpression></PackageLicenseExpression>
-    <PackageIconUrl>https://www.daikoz.com/img/sqlwrapper.png</PackageIconUrl>
     <BuildOutputTargetFolder>dll</BuildOutputTargetFolder>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <NoWarn>NU5100</NoWarn>
+    <PackageIcon>sqlwrapper.png</PackageIcon>
+    <PackageIconUrl />
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Build.Framework" Version="16.4.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.4.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Build.Framework" Version="16.5.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.5.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -56,6 +56,10 @@
     <Compile Remove="Properties\PublishProfiles\**" />
     <EmbeddedResource Remove="Properties\PublishProfiles\**" />
     <None Remove="Properties\PublishProfiles\**" />
+    <None Include="..\..\Web\SQLWrapper.com\wwwroot\img\sqlwrapper.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
