@@ -5,7 +5,7 @@
     <LangVersion>latest</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <Version>1.1.7</Version>
+    <Version>1.1.8</Version>
     <Authors>DAIKOZ</Authors>
     <Company>DAIKOZ</Company>
     <Copyright>© 2019 - DAIKOZ - All rights reserved</Copyright>
@@ -24,8 +24,8 @@
 
       Thus, SQL Wrapper can generate SQL call code from any language like C#, Java, Python, Javascript, VB .NET, ADO .NET ...
     </Description>
-    <AssemblyVersion>1.1.7.0</AssemblyVersion>
-    <FileVersion>1.1.7.0</FileVersion>
+    <AssemblyVersion>1.1.8.0</AssemblyVersion>
+    <FileVersion>1.1.8.0</FileVersion>
     <PackageLicenseUrl></PackageLicenseUrl>
     <BuildOutputTargetFolder>dll</BuildOutputTargetFolder>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>

@@ -84,7 +84,12 @@
 <xsl:text>                            </xsl:text><xsl:value-of select="name"/> = reader[<xsl:value-of select="position()-1" />] == DBNull.Value ? null : (<xsl:apply-templates select="type"/>)reader[<xsl:value-of select="position()-1" />],
 </xsl:when>
 <xsl:otherwise>
-<xsl:text>                            </xsl:text><xsl:value-of select="name"/> = (<xsl:apply-templates select="type"/>)reader[<xsl:value-of select="position()-1" />],
+<xsl:if test="not(type[@custom])">
+  <xsl:text>                            </xsl:text><xsl:value-of select="name"/> = (<xsl:apply-templates select="type"/>)reader[<xsl:value-of select="position()-1" />],
+</xsl:if>
+<xsl:if test="type[@custom]">
+  <xsl:text>                            </xsl:text><xsl:value-of select="name"/> = (<xsl:apply-templates select="type"/>)(typeof(<xsl:apply-templates select="type"/>).IsEnum ? Enum.ToObject(typeof(<xsl:apply-templates select="type"/>), reader[<xsl:value-of select="position()-1" />]) : Convert.ChangeType(reader[<xsl:value-of select="position()-1" />], typeof(<xsl:apply-templates select="type"/>), System.Globalization.CultureInfo.InvariantCulture)),
+</xsl:if>
 </xsl:otherwise>
 </xsl:choose>
   </xsl:for-each>
