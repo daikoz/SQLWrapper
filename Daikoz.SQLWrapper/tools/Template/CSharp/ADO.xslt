@@ -81,14 +81,19 @@
     </xsl:variable>
 <xsl:choose>
 <xsl:when test="type[@isnull = 1]">
-<xsl:text>                            </xsl:text><xsl:value-of select="name"/> = reader[<xsl:value-of select="position()-1" />] == DBNull.Value ? null : (<xsl:apply-templates select="type"/>)reader[<xsl:value-of select="position()-1" />],
+<xsl:if test="not(type[@custom])">  
+  <xsl:text>                            </xsl:text><xsl:value-of select="name"/> = reader[<xsl:value-of select="position()-1" />] == DBNull.Value ? null : (<xsl:apply-templates select="type"/>)reader[<xsl:value-of select="position()-1" />],
+</xsl:if>
+<xsl:if test="type[@custom]">
+  <xsl:text>                            </xsl:text><xsl:value-of select="name"/> = reader[<xsl:value-of select="position()-1" />] == DBNull.Value ? null : (<xsl:apply-templates select="type"/>)(typeof(<xsl:value-of select="type/@custom"/>).IsEnum ? Enum.ToObject(typeof(<xsl:value-of select="type/@custom"/>), reader[<xsl:value-of select="position()-1" />]) : Convert.ChangeType(reader[<xsl:value-of select="position()-1" />], typeof(<xsl:value-of select="type/@custom"/>), System.Globalization.CultureInfo.InvariantCulture)),
+</xsl:if>  
 </xsl:when>
 <xsl:otherwise>
 <xsl:if test="not(type[@custom])">
   <xsl:text>                            </xsl:text><xsl:value-of select="name"/> = (<xsl:apply-templates select="type"/>)reader[<xsl:value-of select="position()-1" />],
 </xsl:if>
 <xsl:if test="type[@custom]">
-  <xsl:text>                            </xsl:text><xsl:value-of select="name"/> = (<xsl:apply-templates select="type"/>)(typeof(<xsl:apply-templates select="type"/>).IsEnum ? Enum.ToObject(typeof(<xsl:apply-templates select="type"/>), reader[<xsl:value-of select="position()-1" />]) : Convert.ChangeType(reader[<xsl:value-of select="position()-1" />], typeof(<xsl:apply-templates select="type"/>), System.Globalization.CultureInfo.InvariantCulture)),
+  <xsl:text>                            </xsl:text><xsl:value-of select="name"/> = (<xsl:apply-templates select="type"/>)(typeof(<xsl:value-of select="type/@custom"/>).IsEnum ? Enum.ToObject(typeof(<xsl:value-of select="type/@custom"/>), reader[<xsl:value-of select="position()-1" />]) : Convert.ChangeType(reader[<xsl:value-of select="position()-1" />], typeof(<xsl:value-of select="type/@custom"/>), System.Globalization.CultureInfo.InvariantCulture)),
 </xsl:if>
 </xsl:otherwise>
 </xsl:choose>
@@ -111,10 +116,93 @@
 </xsl:template>
 <xsl:template match="input">, <xsl:apply-templates select="./type" mode="input"/><xsl:text> </xsl:text><xsl:value-of select="name"/></xsl:template>
 
+<xsl:template match="query" mode="returntype">
+  <xsl:variable name="name" select="../name"/>
+  <xsl:variable name="nboutput" select="count(output)"/>
+  <xsl:variable name="nboutputmultiple" select="@multiplerows = 1"/>
+  <xsl:if test="position() != 1">, </xsl:if>
+  <xsl:if test="$nboutput = 1 and $nboutputmultiple = 0"><xsl:apply-templates select="output/type"/></xsl:if>
+  <xsl:if test="$nboutput > 1 and $nboutputmultiple = 0"><xsl:value-of select="../name"/>ResultQuery<xsl:value-of select="position()" /></xsl:if>
+  <xsl:if test="$nboutputmultiple = 1">List&lt;<xsl:value-of select="../name"/>ResultQuery<xsl:value-of select="position()" />&gt;</xsl:if>
+</xsl:template>
+
+<xsl:template match="query" mode="initresult">
+            <xsl:variable name="name" select="../name"/>
+            <xsl:variable name="nboutput" select="count(output)"/>
+            <xsl:variable name="nboutputmultiple" select="@multiplerows = 1"/>
+            <xsl:if test="$nboutput = 1 and $nboutputmultiple = 0"><xsl:apply-templates select="output/type"/> result<xsl:value-of select="position()" /> = default;
+            </xsl:if>
+            <xsl:if test="$nboutput > 1 and $nboutputmultiple = 0"><xsl:value-of select="../name"/>ResultQuery<xsl:value-of select="position()" /> result<xsl:value-of select="position()" /> = new <xsl:value-of select="../name"/>ResultQuery<xsl:value-of select="position()" />();
+            </xsl:if>
+            <xsl:if test="$nboutputmultiple = 1">List&lt;<xsl:value-of select="../name"/>ResultQuery<xsl:value-of select="position()" />&gt; result<xsl:value-of select="position()" /> = new List&lt;<xsl:value-of select="../name"/>ResultQuery<xsl:value-of select="position()" />&gt;();
+            </xsl:if>
+</xsl:template>
+
+<xsl:template match="query" mode="getresult">
+    <xsl:variable name="nboutput" select="count(output)"/>
+    <xsl:variable name="returntype">
+      <xsl:apply-templates select="output/type"/>
+    </xsl:variable> 
+                    // <xsl:value-of select="../name"/>ResultQuery<xsl:value-of select="position()" />
+    <xsl:if test="position() != 1">
+                    if(!await reader.NextResultAsync())
+                        throw new InvalidOperationException("<xsl:value-of select="../name"/>Result query <xsl:value-of select="position()" /> invalid number of result");
+    </xsl:if>
+   <!-- Return only one value -->
+   <xsl:if test="$nboutput = 1 and @multiplerows = 0">
+                    if(!await reader.ReadAsync())
+                        throw new InvalidOperationException("<xsl:value-of select="../name"/>Result query <xsl:value-of select="position()" /> return no row");
+      <xsl:if test="output/type[@isnull = 0]">
+          <xsl:if test="not(output/type[@custom])">
+                    result<xsl:value-of select="position()" /> = (<xsl:value-of select="$returntype"/>)reader[0];
+          </xsl:if>
+          <xsl:if test="output/type[@custom]">
+                    result<xsl:value-of select="position()" /> = (<xsl:value-of select="$returntype"/>)Convert.ChangeType(reader[0], typeof(<xsl:value-of select="$returntype"/>), System.Globalization.CultureInfo.InvariantCulture);
+          </xsl:if>
+      </xsl:if>
+      <xsl:if test="output/type[@isnull = 1]">
+          <xsl:if test="not(output/type[@custom])">
+                    result<xsl:value-of select="position()" /> = reader[0] == DBNull.Value ? null : (<xsl:value-of select="$returntype"/>)reader[0];
+          </xsl:if>
+          <xsl:if test="output/type[@custom]">
+                    result<xsl:value-of select="position()" /> = reader[0] == DBNull.Value ? null : (<xsl:value-of select="$returntype"/>)Convert.ChangeType(reader[0], typeof(<xsl:value-of select="$returntype"/>), System.Globalization.CultureInfo.InvariantCulture);
+          </xsl:if>
+      </xsl:if>
+    </xsl:if>
+
+    <!-- Return one multiple columns -->
+    <xsl:if test="$nboutput > 1 and @multiplerows = 0">
+                    if(!await reader.ReadAsync())
+                        throw new InvalidOperationException("<xsl:value-of select="../name"/>Result query <xsl:value-of select="position()" /> return no row");
+
+                    result<xsl:value-of select="position()" /> = new <xsl:value-of select="../name"/>ResultQuery<xsl:value-of select="position()" />
+                    {
+<xsl:apply-templates select="." mode="outputassign"/>
+                    };
+    </xsl:if>
+
+    <!-- Return several row of one column -->
+    <xsl:if test="$nboutput = 1 and @multiplerows = 1">
+                    while (reader.Read())
+                        result<xsl:value-of select="position()" />.Add(<xsl:apply-templates select="." mode="outputconvert"/>);
+    </xsl:if>
+
+    <!-- Return several row multiple columns -->
+    <xsl:if test="$nboutput > 1 and @multiplerows = 1">
+                    while (reader.Read())
+                        result<xsl:value-of select="position()" />.Add(new <xsl:value-of select="../name"/>ResultQuery<xsl:value-of select="position()" />
+                        {
+<xsl:apply-templates select="." mode="outputassign"/>
+                        });
+    </xsl:if>    
+
+</xsl:template>
+
 <xsl:template match="sql">
 <xsl:variable name="nboutput" select="count(query[@ignore = 0]/output)"/>
 <xsl:variable name="nboutputmultiple" select="count(query[@ignore = 0 and @multiplerows = 1])"/>
-  
+<xsl:variable name="nbquery" select="count(query[@ignore = 0])"/>
+
 <!-- Non Query Insert Delete Update -->
 <xsl:if test="$nboutput = 0">
         public static async Task&lt;int&gt; <xsl:value-of select="name"/>(MySqlConnection conn, MySqlTransaction transaction<xsl:apply-templates select="query/input"/>)
@@ -146,10 +234,16 @@
             };
             <xsl:for-each select="query/input"><xsl:if test="type[@array != 1]">sqlCmd.Parameters.AddWithValue("@<xsl:value-of select="name"/>", <xsl:value-of select="name"/>);
             </xsl:if></xsl:for-each>
-            Object result = await sqlCmd.ExecuteScalarAsync();
+            object result = await sqlCmd.ExecuteScalarAsync();
             if (result != null)
-                <xsl:if test="not(query[@ignore = 0]/output/type[@custom])">return (<xsl:value-of select="$returntype"/>)result;</xsl:if>
-                <xsl:if test="query[@ignore = 0]/output/type[@custom]">return (<xsl:value-of select="$returntype"/>)Convert.ChangeType(result, typeof(<xsl:value-of select="$returntype"/>), System.Globalization.CultureInfo.InvariantCulture);</xsl:if>
+                <xsl:if test="query[@ignore = 0]/output/type[@isnull = 0]">
+                    <xsl:if test="not(query[@ignore = 0]/output/type[@custom]) and not(query[@ignore = 0]/output/type[@lastinsertid = 1])">return (<xsl:value-of select="$returntype"/>)result;</xsl:if>
+                    <xsl:if test="query[@ignore = 0]/output/type[@custom] or query[@ignore = 0]/output/type[@lastinsertid = 1]">return (<xsl:value-of select="$returntype"/>)Convert.ChangeType(result, typeof(<xsl:value-of select="$returntype"/>), System.Globalization.CultureInfo.InvariantCulture);</xsl:if>
+                </xsl:if>
+                <xsl:if test="query[@ignore = 0]/output/type[@isnull = 1]">
+                    <xsl:if test="not(query[@ignore = 0]/output/type[@custom])">return result == DBNull.Value ? null : (<xsl:value-of select="$returntype"/>)result;</xsl:if>
+                    <xsl:if test="query[@ignore = 0]/output/type[@custom]">return result == DBNull.Value ? null : (<xsl:value-of select="$returntype"/>)Convert.ChangeType(result, typeof(<xsl:value-of select="$returntype"/>), System.Globalization.CultureInfo.InvariantCulture);</xsl:if>
+                </xsl:if>
             if (!returnDefault)
                 throw new InvalidOperationException("<xsl:value-of select="name"/> return no row");
             return default;
@@ -157,7 +251,7 @@
 </xsl:if>
 
 <!-- Return one multiple columns -->
-<xsl:if test="$nboutput > 1 and $nboutputmultiple = 0">
+<xsl:if test="$nboutput > 1 and $nboutputmultiple = 0 and $nbquery = 1">
         public class <xsl:value-of select="name"/>Result
         {
 <xsl:apply-templates select="query/output"/>        }
@@ -210,7 +304,7 @@
 </xsl:if>
   
 <!-- Return several row multiple columns -->
-<xsl:if test="$nboutput > 1 and $nboutputmultiple = 1">
+<xsl:if test="$nboutput > 1 and $nboutputmultiple = 1 and $nbquery = 1">
         public class <xsl:value-of select="name"/>Result
         {
 <xsl:apply-templates select="query/output"/>        }
@@ -238,10 +332,44 @@
             return listResult;
         }
 </xsl:if>
+
+<!-- Return several queries -->
+<xsl:if test="$nboutput > 1 and $nbquery > 1">
+<xsl:variable name="name" select="name"/>
+<xsl:for-each select="query[@ignore = 0]">
+  <xsl:if test="count(output) > 1">
+        public class <xsl:value-of select="$name"/>ResultQuery<xsl:value-of select="position()" />
+        {
+<xsl:apply-templates select="output"/>        }
+  </xsl:if>
+</xsl:for-each>
+        public static async Task&lt;(<xsl:apply-templates select="query[@ignore = 0]" mode="returntype"/>)&gt; <xsl:value-of select="name"/>(MySqlConnection conn, MySqlTransaction transaction<xsl:apply-templates select="query/input"/>)
+        {
+            using MySqlCommand sqlCmd = new MySqlCommand
+            {
+                Connection = conn,
+                Transaction = transaction,
+                CommandText = @"<xsl:value-of select="text"/>"<xsl:for-each select="query/input/type[@array = 1]">.Replace("@<xsl:value-of select="../name"/>", (<xsl:value-of select="../name"/> != null &amp;&amp; <xsl:value-of select="../name"/>.Any()) ? string.Join(",", <xsl:value-of select="../name"/>) : "NULL", StringComparison.Ordinal)</xsl:for-each>
+            };
+            <xsl:for-each select="query/input"><xsl:if test="type[@array != 1]">sqlCmd.Parameters.AddWithValue("@<xsl:value-of select="name"/>", <xsl:value-of select="name"/>);
+            </xsl:if></xsl:for-each>
+            <xsl:text>
+            </xsl:text>
+            <xsl:apply-templates select="query[@ignore = 0]" mode="initresult"/>
+            using (DbDataReader reader = await sqlCmd.ExecuteReaderAsync())
+                if (reader != null)
+                {
+                    <xsl:apply-templates select="query[@ignore = 0]" mode="getresult"/>
+                }
+
+            return (<xsl:for-each select="query[@ignore = 0]"><xsl:if test="position() != 1">, </xsl:if>result<xsl:value-of select="position()" /></xsl:for-each>);
+        }
+  
+</xsl:if>
   
 </xsl:template>
 
-<xsl:template match="/">using MySql.Data.MySqlClient;
+<xsl:template match="/">using MySqlConnector;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;

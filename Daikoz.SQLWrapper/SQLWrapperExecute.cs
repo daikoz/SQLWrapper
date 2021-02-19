@@ -83,6 +83,12 @@ namespace Daikoz.SQLWrapper
                     argument.Append(" -d " + cacheDBPath);
                     argument.Append(" -o " + Path.Combine(System.Environment.CurrentDirectory, config.HelperRelativePath));
                     argument.Append(" -p namespace=" + config.Namespace);
+                    if (config.CustomTypes != null && config.CustomTypes.Length > 0)
+                    {
+                        argument.Append(" -t");
+                        foreach (string type in config.CustomTypes)
+                            argument.Append(" \"" + type.Replace("\"", "\"\"") + "\" ");
+                    }
                     argument.Append(" -x " + helperPath);
 
                     StartProcess(config.SQLWrapperPath, argument.ToString(), "SQLWrapper Helper", helperPath);
