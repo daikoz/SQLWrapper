@@ -1,2 +1,4 @@
 /Daikoz.SQLWrapper/bin
 /Daikoz.SQLWrapper/obj
+/Daikoz.SQLWrapper/*.user
+.vs
