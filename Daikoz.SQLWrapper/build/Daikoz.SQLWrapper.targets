@@ -1,14 +1,45 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-  <UsingTask AssemblyFile="..\dll\netstandard2.0\Daikoz.SQLWrapper.dll" TaskName="Daikoz.SQLWrapper.SQLWrapperBuild"/>
+	<!-- 
+	Don t copy DLL to output directory 
+	-->
+	<ItemGroup>
+		<PackageReference Update="Daikoz.SQLWrapper" ExcludeAssets="runtime" />
+	</ItemGroup>
 
-  <Target Name="SQLWrapperCompile" BeforeTargets="BeforeCompile" >
-    <Daikoz.SQLWrapper.SQLWrapperBuild FileName="$(MSBuildProjectDirectory)\sqlwrapperconfig.json" IsCleanning="false" />
-  </Target>
+	<!--
+    Visual Studio has its own incremental build logic on top of MSBuild's that
+    will skip targets if it thinks inputs haven't changed. SQL file are not included
+	in projet. Add DisableFastUpToDateCheck to force to call task each time.
+	-->
+	<PropertyGroup>
+		<DisableFastUpToDateCheck>True</DisableFastUpToDateCheck>
+	</PropertyGroup>
 
-  <Target Name="SQLWrapperClean" AfterTargets="CoreClean">
-    <Daikoz.SQLWrapper.SQLWrapperBuild FileName="$(MSBuildProjectDirectory)\sqlwrapperconfig.json" IsCleanning="true" />
-  </Target>
+	<!-- 
+	Add cs file under .sql or mysql file 
+	-->
+	<ItemGroup>
+		<Compile Update="**\*.mysql.cs">
+			<DependentUpon>$([System.String]::Copy('%(Filename)'))</DependentUpon>
+		</Compile>
+		<Compile Update="**\*.sql.cs">
+			<DependentUpon>$([System.String]::Copy('%(Filename)'))</DependentUpon>
+		</Compile>
+	</ItemGroup>
+
+	<!-- 
+	Tasks 
+	-->
+	<UsingTask TaskName="Daikoz.SQLWrapper.SQLWrapperTask" AssemblyFile="..\lib\netstandard2.0\Daikoz.SQLWrapper.dll" />
+
+	<Target Name="SQLWrapperBuild" BeforeTargets="BeforeBuild" >
+		<Daikoz.SQLWrapper.SQLWrapperTask ConfigurationFilePath="$(MSBuildProjectDirectory)\sqlwrapper.json" IsCleanning="false" RootNamespace="$(RootNamespace)" />
+	</Target>
+
+	<Target Name="SQLWrapperClean" AfterTargets="BeforeClean">
+		<Daikoz.SQLWrapper.SQLWrapperTask ConfigurationFilePath="$(MSBuildProjectDirectory)\sqlwrapper.json" IsCleanning="true" RootNamespace="$(RootNamespace)" />
+	</Target>
 
 </Project>

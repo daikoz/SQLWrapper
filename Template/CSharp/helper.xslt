@@ -18,68 +18,73 @@
         }    
   </xsl:if>
 </xsl:template>
-
+	
+<!-- COLUMN NAME-->
+<xsl:template match="column" mode="ColumnName"><xsl:if test="@name = ../@name">_</xsl:if><xsl:value-of select="translate(@name,' ','_')"/></xsl:template>
+	
 <!-- COLUMN -->
 <xsl:template match="column" mode="TypeLength">
-        public const int <xsl:value-of select="@name"/>Length = <xsl:value-of select="@length"/>;</xsl:template>
+        public const uint <xsl:apply-templates select="." mode="ColumnName"/>Length = <xsl:value-of select="@length"/>;</xsl:template>
 
 <!-- PROPERTIES -->
 <xsl:template match="column" mode="Properties">
-        public <xsl:apply-templates select="." mode="typeonly"/><xsl:text> </xsl:text><xsl:value-of select="@name"/> { get; set; }</xsl:template>
+        public <xsl:apply-templates select="." mode="typeonly"/><xsl:text> </xsl:text><xsl:apply-templates select="." mode="ColumnName"/> { get; set; } = default!;</xsl:template>
   
 <xsl:template match="column" mode="typeonly">
   <xsl:choose>
     <xsl:when test="@custom">
-      <xsl:value-of select="@custom"/><xsl:if test="@nullable = 1">?</xsl:if>
+      <xsl:value-of select="@custom"/>
     </xsl:when>
     <xsl:otherwise>
       <xsl:if test="not(@unsigned = 1)">
         <xsl:choose>
-          <xsl:when test="@type = 'bigint'">long<xsl:if test="@nullable = 1">?</xsl:if></xsl:when>
+          <xsl:when test="@type = 'bigint'">long</xsl:when>
           <xsl:when test="@type = 'binary'">byte[]</xsl:when>       
-          <xsl:when test="@type = 'bit'">ulong<xsl:if test="@nullable = 1">?</xsl:if></xsl:when>      
+          <xsl:when test="@type = 'bit'">ulong</xsl:when>      
           <xsl:when test="@type = 'blob'">byte[]</xsl:when>
-          <xsl:when test="@type = 'bool'">bool<xsl:if test="@nullable = 1">?</xsl:if></xsl:when>
+          <xsl:when test="@type = 'bool'">bool</xsl:when>
           <xsl:when test="@type = 'char'">string</xsl:when>        
-          <xsl:when test="@type = 'date'">DateTime<xsl:if test="@nullable = 1">?</xsl:if></xsl:when>       
-          <xsl:when test="@type = 'datetime'">DateTime<xsl:if test="@nullable = 1">?</xsl:if></xsl:when>       
-          <xsl:when test="@type = 'decimal'">decimal<xsl:if test="@nullable = 1">?</xsl:if></xsl:when>      
-          <xsl:when test="@type = 'double'">double<xsl:if test="@nullable = 1">?</xsl:if></xsl:when>      
+          <xsl:when test="@type = 'date'">DateTime</xsl:when>       
+          <xsl:when test="@type = 'datetime'">DateTime</xsl:when>       
+          <xsl:when test="@type = 'decimal'">decimal</xsl:when>      
+          <xsl:when test="@type = 'double'">double</xsl:when>      
           <xsl:when test="@type = 'enum'">string</xsl:when>   
-          <xsl:when test="@type = 'float'">float<xsl:if test="@nullable = 1">?</xsl:if></xsl:when>      
-          <xsl:when test="@type = 'int'">int<xsl:if test="@nullable = 1">?</xsl:if></xsl:when>
+          <xsl:when test="@type = 'float'">float</xsl:when>      
+          <xsl:when test="@type = 'int'">int</xsl:when>
           <xsl:when test="@type = 'longblob'">byte[]</xsl:when>
           <xsl:when test="@type = 'longtext'">string</xsl:when>
           <xsl:when test="@type = 'mediumblob'">byte[]</xsl:when>      
-          <xsl:when test="@type = 'mediumint'">int<xsl:if test="@nullable = 1">?</xsl:if></xsl:when>
+          <xsl:when test="@type = 'mediumint'">int</xsl:when>
           <xsl:when test="@type = 'mediumtext'">string</xsl:when>
           <xsl:when test="@type = 'set'">string</xsl:when>
-          <xsl:when test="@type = 'smallint'">short<xsl:if test="@nullable = 1">?</xsl:if></xsl:when>
+          <xsl:when test="@type = 'smallint'">short</xsl:when>
           <xsl:when test="@type = 'text'">string</xsl:when>
-          <xsl:when test="@type = 'time'">TimeSpan<xsl:if test="@nullable = 1">?</xsl:if></xsl:when>
-          <xsl:when test="@type = 'timestamp'">DateTime<xsl:if test="@nullable = 1">?</xsl:if></xsl:when>
+          <xsl:when test="@type = 'time'">TimeSpan</xsl:when>
+          <xsl:when test="@type = 'timestamp'">DateTime</xsl:when>
           <xsl:when test="@type = 'tinyblob'">byte[]</xsl:when>
-          <xsl:when test="@type = 'tinyint'">sbyte<xsl:if test="@nullable = 1">?</xsl:if></xsl:when>
+          <xsl:when test="@type = 'tinyint'">sbyte</xsl:when>
           <xsl:when test="@type = 'tinytext'">string</xsl:when>
           <xsl:when test="@type = 'varbinary'">byte[]</xsl:when>
-          <xsl:when test="@type = 'varchar'">string</xsl:when>      
-          <xsl:otherwise><xsl:value-of select="@type"/><xsl:if test="@nullable = 1">?</xsl:if>
+          <xsl:when test="@type = 'varchar'">string</xsl:when>
+		  <xsl:when test="@type = 'year'">int</xsl:when>
+          <xsl:otherwise><xsl:value-of select="@type"/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:if>
       <xsl:if test="@unsigned = 1">
         <xsl:choose>
-          <xsl:when test="@type = 'bigint'">ulong<xsl:if test="@nullable = 1">?</xsl:if></xsl:when>      
-          <xsl:when test="@type = 'int'">uint<xsl:if test="@nullable = 1">?</xsl:if></xsl:when>
-          <xsl:when test="@type = 'mediumint'">uint<xsl:if test="@nullable = 1">?</xsl:if></xsl:when>
-          <xsl:when test="@type = 'smallint'">ushort<xsl:if test="@nullable = 1">?</xsl:if></xsl:when>
-          <xsl:when test="@type = 'tinyint'">byte<xsl:if test="@nullable = 1">?</xsl:if></xsl:when>
-          <xsl:otherwise><xsl:value-of select="@type"/><xsl:if test="@nullable = 1">?</xsl:if>
+          <xsl:when test="@type = 'bigint'">ulong</xsl:when>      
+          <xsl:when test="@type = 'int'">uint</xsl:when>
+          <xsl:when test="@type = 'mediumint'">uint</xsl:when>
+          <xsl:when test="@type = 'smallint'">ushort</xsl:when>
+          <xsl:when test="@type = 'tinyint'">byte</xsl:when>
+          <xsl:otherwise><xsl:value-of select="@type"/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:if>
     </xsl:otherwise>
   </xsl:choose>
+  <xsl:if test="@nullable = 1">?</xsl:if>	
 </xsl:template>
 
 <!-- TABLE -->
@@ -126,14 +131,14 @@ namespace Daikoz
             StringBuilder strQuery = new StringBuilder("UPDATE " + tableName + " SET");
             foreach (string colName in listColumnName)
             {
-                PropertyInfo propertyInfoData = typeObjToUpdate.GetProperty(colName);
+                PropertyInfo? propertyInfoData = typeObjToUpdate.GetProperty(colName);
                 if (propertyInfoData != null)
                 {
-                    PropertyInfo propertyInfoObjToUpdate = typeObjToUpdate.GetProperty(colName);
+                    PropertyInfo? propertyInfoObjToUpdate = typeObjToUpdate.GetProperty(colName);
                     if (propertyInfoObjToUpdate != null)
                     {
-                        object oldValue = propertyInfoObjToUpdate.GetValue(objToUpdate);
-                        object newValue = propertyInfoData.GetValue(data);
+                        object? oldValue = propertyInfoObjToUpdate.GetValue(objToUpdate);
+                        object? newValue = propertyInfoData.GetValue(data);
                         if ((oldValue == null &amp;&amp; newValue != null) || (oldValue != null &amp;&amp; !oldValue.Equals(newValue)))
                         {
                             if (hasValueModified)
@@ -157,7 +162,7 @@ namespace Daikoz
                     strQuery.Append(" WHERE " + colNamePrimary + " = @" + colNamePrimary);
                 else
                     strQuery.Append(" AND " + colNamePrimary + " = @" + colNamePrimary);
-                PropertyInfo propertyInfo = typeObjToUpdate.GetProperty(colNamePrimary);
+                PropertyInfo? propertyInfo = typeObjToUpdate.GetProperty(colNamePrimary);
                 if (propertyInfo == null)
                     throw new ArgumentException("UpdateIfModified: objToUpdate doesn't contain primary key " + colNamePrimary);
                 sqlCmd.Parameters.AddWithValue(colNamePrimary, propertyInfo.GetValue(objToUpdate));

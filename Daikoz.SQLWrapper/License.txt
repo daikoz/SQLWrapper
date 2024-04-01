@@ -1,0 +1,50 @@
+
+English version below
+
+-----------------
+
+Licence d'utilisation pour DAIKOZ.SQLWrapper & SQLWrapper
+
+Version 2.0, le 29 mars 2024
+
+1. Autorisation d'utilisation : Sous réserve des termes et conditions de cette licence, DAIKOZ accorde à l'utilisateur final une licence non exclusive et non transférable pour utiliser le programme informatique nommé DAIKOZ.SQLWrapper ou SQLWrapper (ci-après dénommé le "Programme") à des fins personnelles ou commerciales.
+
+2. Restrictions :
+ a. Modification : L'utilisateur ne peut pas modifier, altérer, ou adapter le Programme, en tout ou en partie, sans l'autorisation écrite préalable de DAIKOZ.
+ b. Décompilation : L'utilisateur ne peut pas décompiler, désassembler ou tenter de découvrir le code source du Programme.
+ c. Distribution : L'utilisateur ne peut pas distribuer le Programme, que ce soit gratuitement ou moyennant paiement, sans l'autorisation écrite préalable de DAIKOZ.
+
+3. Droits de propriété intellectuelle : Le Programme reste la propriété exclusive de DAIKOZ. Cette licence ne confère à l'utilisateur aucun droit de propriété sur le Programme, à l'exception du droit limité d'utilisation tel que spécifié aux termes de cette licence.
+
+4. Aucune garantie : Le Programme est fourni "tel quel", sans aucune garantie expresse ou implicite, y compris, mais sans s'y limiter, les garanties de qualité marchande, d'adéquation à un usage particulier et d'absence de contrefaçon. En aucun cas DAIKOZ ne sera responsable de tout dommage direct, indirect, accessoire, spécial, exemplaire ou consécutif découlant de l'utilisation ou de l'incapacité à utiliser le Programme, même si DAIKOZ a été informé de la possibilité de tels dommages.
+
+5. Durée de la licence : Cette licence est effective à compter de la date de téléchargement ou de l'installation du Programme par l'utilisateur et restera en vigueur jusqu'à résiliation. DAIKOZ se réserve le droit de résilier cette licence à tout moment en cas de violation des termes de cette licence par l'utilisateur. En cas de résiliation, l'utilisateur doit cesser toute utilisation du Programme et détruire toutes les copies du Programme en sa possession.
+
+6. Loi applicable : Cette licence sera régie et interprétée conformément aux lois en vigueur en France. Tout litige découlant de cette licence sera soumis à la compétence exclusive des tribunaux de ladite juridiction.
+
+En acceptant ces termes, l'utilisateur reconnaît avoir lu, compris et accepté les conditions de cette licence. Si l'utilisateur n'accepte pas ces termes, il ne doit pas utiliser le Programme.
+
+
+-----------------
+
+
+License Agreement for DAIKOZ.SQLWrapper & SQLWrapper
+
+Version 2.0, March 29, 2024
+
+1. Permission to Use: Subject to the terms and conditions of this license, DAIKOZ grants the end user a non-exclusive, non-transferable license to use the computer program named DAIKOZ.SQLWrapper or SQLWrapper (hereinafter referred to as the "Program") for personal or commercial purposes.
+
+2. Restrictions :
+ a. Modification: The user may not modify, alter, or adapt the Program, in whole or in part, without the prior written consent of DAIKOZ.
+ b. Decompilation: The User may not decompile, disassemble or otherwise attempt to discover the source code of the Program.
+ c. Distribution: The User may not distribute the Program, whether free of charge or for a fee, without the prior written consent of DAIKOZ.
+
+3. Intellectual property rights: The Program remains the exclusive property of DAIKOZ. This license does not grant the user any ownership rights to the Program, except for the limited right of use as specified in the terms of this license.
+
+4. No warranties: The Program is provided "as is", without warranty of any kind, either express or implied, including, but not limited to, warranties of merchantability, fitness for a particular purpose and non-infringement. In no event shall DAIKOZ be liable for any direct, indirect, incidental, special, exemplary or consequential damages arising out of the use or inability to use the Program, even if DAIKOZ has been advised of the possibility of such damages.
+
+5. Term of license: This license is effective from the date of download or installation of the Program by the user and will remain in effect until terminated. DAIKOZ reserves the right to terminate this license at any time in the event of User's breach of the terms of this license. Upon termination, the User must cease all use of the Program and destroy all copies of the Program in its possession.
+
+6. Applicable law: This license shall be governed by and construed in accordance with the laws of France. Any dispute arising under this license shall be subject to the exclusive jurisdiction of the courts of the said jurisdiction.
+
+By accepting these terms, the user acknowledges having read, understood and accepted the conditions of this license. If the user does not accept these terms, he/she must not use the Program.
