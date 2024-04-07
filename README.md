@@ -11,7 +11,7 @@ Overall, SQLWrapper is a handy tool for making SQL code easier to work with, sav
 
 **Video of demonstration:**
 
-[![Watch the video](https://img.youtube.com/vi/xEeWnESZki0/hqdefault.jpg)](https://www.youtube.com/watch?v=xEeWnESZki0)
+[![Watch the video](https://raw.githubusercontent.com/daikoz/SQLWrapper/master/img/video.jpg)](https://www.youtube.com/watch?v=xEeWnESZki0)
 
 The .NET package NuGet [Daikoz.SQLWrapper](https://www.nuget.org/packages/Daikoz.SQLWrapper) integrate SQLWrapper in build process of our .NET project.
 
