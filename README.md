@@ -6,11 +6,12 @@ One feature is that it can look at your database's structure to check if your SQ
 
 Overall, SQLWrapper is a handy tool for making SQL code easier to work with, saving time, and helping you write better code.
 
+
 ## Getting started with package NuGet Daikoz.SQLWrapper
 
 **Video of demonstration:**
 
-[![Watch the video](https://raw.githubusercontent.com/daikoz/SQLWrapper/master/img/video.jpg)](https://www.youtube.com/watch?v=xEeWnESZki0)
+[![Watch the video](https://img.youtube.com/vi/xEeWnESZki0/hqdefault.jpg)](https://www.youtube.com/watch?v=xEeWnESZki0)
 
 The .NET package NuGet [Daikoz.SQLWrapper](https://www.nuget.org/packages/Daikoz.SQLWrapper) integrate SQLWrapper in build process of our .NET project.
 
@@ -85,10 +86,128 @@ To start, follow a minimal configuration file. Modify HOSTNAME, USERID, PASSWORD
 * A database helper if generate in file MyDataseHelper.cs
 * For each *.sql, a wrapper is generated
 
+
 ## Getting started with command line SQLWrapper
 
+SQLWrapper can be use in console.
+
+### Database
+
+First, extract and cache database structure in XML File:
+
+``` dos
+>SQLWrapper help database
+SQL Wrapper Generator
+Copyright (C) DAIKOZ. All rights reserved.
+USAGE:
+Extract and cache database structure in XML file:
+  SQLWrapper database --connectionstring "server=servernamedb;user id=userid;password='password';database=db1" --outputfile sqlwrapper-cachedb.xml --type mariadb --verbose
+
+  -t, --type                Required. Type of database: mysql, mariadb.
+
+  -c, --connectionstring    Required. List of .net database connection string (https://docs.microsoft.com/en-us/dotnet/framework/data/adonet/connection-string-syntax).
+
+  -o, --outputfile          Output XML file (default: stdout).
+
+  -v, --verbose             Set output to verbose messages.
+
+  --help                    Display this help screen.
+
+  --version                 Display version information.
+```
+
+**Example:**
+
+``` dos
+SQLWrapper database --connectionstring "server=servernamedb;user id=userid;password='password';database=db1" --outputfile sqlwrapper-cachedb.xml --type mariadb --verbose
+```
+
+This command connect to **database** of **type** with connection information **connectionstring**. The output is written in **outputfile**.
+
+### Wrapper
+
+Generate the wrapper source code from SQL queries:
+
+``` dos
+>SQLWrapper help wrapper
+SQL Wrapper Generator
+Copyright (C) DAIKOZ. All rights reserved.
+USAGE:
+Generate code from sql request:
+  SQLWrapper wrapper --database sqlwrapper-cachedb.xml --inputfiles request1.mysql request2.mysql --outputfile mysqlrequest.cs --params namespace=DAIKOZ classname=SQLWrapper --xslt Template\CSharp\charpADO.xslt
+
+  -d, --database       Required. XML file of cache database structure to load. Generate it before with database command
+
+  -i, --inputfiles     Required. SQL files. Relative or full path. wildcard * is supported for filename.
+
+  -o, --outputfile     Output file
+
+  -p, --params         XLST Parameters
+
+  -t, --customtypes    Force custom type for database field (table.col=MyEmu
+
+  -x, --xslt           XSLT file path to transform XML output.
+
+  -v, --verbose        Set output to verbose messages.
+
+  --help               Display this help screen.
+
+  --version            Display version information.
+```
+
+**Example:**
+
+``` dos
+SQLWrapper wrapper --database sqlwrapper-cachedb.xml --inputfiles request1.mysql request2.mysql --outputfile mysqlrequest.cs --params namespace=DAIKOZ classname=SQLWrapper --xslt Template\CSharp\charpADO.xslt
+```
+
+This command create a **wrapper** from **database** for 2 queries defined in **inputfiles**. It use the **XSLT** file to generate the **outputfile**. **params** give parameters defined in **XLST** file (here the namespace).
+
+### Helper
+
+Generate a source code helper to help the access to database. For example: the length of all text columns.
+
+``` dos
+>SQLWrapper help helper
+SQL Wrapper Generator
+Copyright (C) DAIKOZ. All rights reserved.
+USAGE:
+Generate code helper to access database:
+  SQLWrapper helper --database sqlwrapper-cachedb.xml --outputfile helper.cs --xslt Template\CSharp\helper.xslt
+
+  -d, --database       Required. XML file of cache database structure to load. Generate it before with database command
+
+  -o, --outputfile     Output file
+
+  -p, --params         XLST Parameters
+
+  -t, --customtypes    Force custom type for database field (table.col=MyEmu
+
+  -x, --xslt           XSLT file path to transform XML output.
+
+  -v, --verbose        Set output to verbose messages.
+
+  --help               Display this help screen.
+
+  --version            Display version information.
+```
+
+**Example:**
+
+``` dos
+SQLWrapper helper --database sqlwrapper-cachedb.xml --outputfile helper.cs --xslt Template\CSharp\helper.xslt
+```
+
+This command create a **helper** for **database**. It use **XLST** file to generate the **outputfile**.
+
+
+## Template XLST
+
+In template section, you can found several XLST files to generate wrappers and helpers in several programming language.
+You can create or modify your own and use it with **--xslt** parameter.
+
 ## Links
-* [Official web](https://www.sqlwrapper.com)
+* [Official website](https://www.sqlwrapper.com)
 * [Package .NET](https://www.nuget.org/packages/Daikoz.SQLWrapper/)
 * [Documentation](https://github.com/daikoz/SQLWrapper/wiki)
 * [Issues/Bugs](https://github.com/daikoz/SQLWrapper/issues)
