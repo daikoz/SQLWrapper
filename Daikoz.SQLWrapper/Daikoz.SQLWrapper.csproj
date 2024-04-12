@@ -11,9 +11,9 @@
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<PackageIcon>sqlwrapper.png</PackageIcon>
 		<Title>SQL Wrapper Generator</Title>
-		<Version>2.0.0</Version>
-		<AssemblyVersion>2.0.0</AssemblyVersion>
-		<FileVersion>2.0.0</FileVersion>
+		<Version>2.0.1</Version>
+		<AssemblyVersion>2.0.1</AssemblyVersion>
+		<FileVersion>2.0.1</FileVersion>
 		<Authors>DAIKOZ</Authors>
 		<Description>SQLWrapper makes it easier to create code wrappers for SQL queries. It's a powerful tool that helps speed up development by reducing the need for manual coding. It works with databases various SQL database (MySQL, MariaDB, ...), checking the syntax and performance of SQL queries before you execute them.
 
@@ -28,10 +28,27 @@ Overall, DAIKOZ.SQLWrapper is a handy tool for making SQL code easier to work wi
 		<RepositoryUrl>https://github.com/daikoz/SQLWrapper</RepositoryUrl>
 		<RepositoryType>github</RepositoryType>
 		<PackageTags>sql;wrapper;sqlwrapper;ORM;dapper;linq;database;mysql;mariadb;server;mssql;pgsql;sqlite;postgres;postgresql;query;builder</PackageTags>
-		<PackageReleaseNotes>Version 2.0.0: 
-- increase performance to generate code from sql query
-- Add MariaDB database
-- Genere code under each sql file</PackageReleaseNotes>
+		<PackageReleaseNotes># Changelog
+
+## [2.0.1] (2024-04-12)
+
+### SQLWrapper
+- Order caseinsentive input SQL variables.
+- Enhance display warning message
+- MariaDB/MySQL: Fix UNION column checking with BOOL, INT, INTEGER type
+
+### Daikoz.SQLWrapper NuGet Package
+- Visual Studio can generate wrapper in background
+- Fix compilation error after clean the project, the generated source is now added to compile process. Don't need to build again the project.
+- Enhance display warning message
+- Update readme.md
+
+### Template
+- **C# Helper**: Use int type for length or long instead of uint to avoid int cast with index of string function.
+- **C# Helper**: Rename SQLWrapper::UpdateIfModified to SQLWrapperHelper::UpdateIfModified method and move it in same namespace to avoid warning this Daikoz.SQLWrapper NuGet package.
+- **C# Helper**: Fix tab/space mix
+- **C# Helper**: Fix spaces
+</PackageReleaseNotes>
 		<PackageLicenseFile>license.txt</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 
@@ -74,5 +91,9 @@ Overall, DAIKOZ.SQLWrapper is a handy tool for making SQL code easier to work wi
 			<LastGenOutput>Resource.Designer.cs</LastGenOutput>
 		</EmbeddedResource>
 	</ItemGroup>
+
+	<Target Name="CopyReadme" BeforeTargets="BeforeBuild">
+		<Copy SourceFiles="..\..\..\SQLWrapper\README.md" DestinationFolder="$(MSBuildProjectDirectory)" />
+	</Target>
 
 </Project>

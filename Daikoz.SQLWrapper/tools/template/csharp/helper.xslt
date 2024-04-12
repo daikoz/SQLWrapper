@@ -14,7 +14,7 @@
     
         public static async Task&lt;int&gt; UpdateIfModified(MySqlConnection conn, MySqlTransaction transaction, object objToUpdate, object data)
         {
-            return await Daikoz.SQLWrapper.UpdateIfModified(conn, transaction, objToUpdate, data, "<xsl:value-of select="@name"/>", new string[] { <xsl:apply-templates select="column[@key != 'primarykey' or not(@key)]" mode="UpdateIfModified_Column" /> }, new string[] { <xsl:apply-templates select="column[@key = 'primarykey']" mode="UpdateIfModified_Column" /> });
+            return await SQLWrapperHelper.UpdateIfModified(conn, transaction, objToUpdate, data, "<xsl:value-of select="@name"/>", new string[] { <xsl:apply-templates select="column[@key != 'primarykey' or not(@key)]" mode="UpdateIfModified_Column" /> }, new string[] { <xsl:apply-templates select="column[@key = 'primarykey']" mode="UpdateIfModified_Column" /> });
         }    
   </xsl:if>
 </xsl:template>
@@ -24,7 +24,7 @@
 	
 <!-- COLUMN -->
 <xsl:template match="column" mode="TypeLength">
-        public const uint <xsl:apply-templates select="." mode="ColumnName"/>Length = <xsl:value-of select="@length"/>;</xsl:template>
+        public const <xsl:choose><xsl:when test="@length &lt;= 2147483647">int </xsl:when><xsl:otherwise>long </xsl:otherwise></xsl:choose> <xsl:apply-templates select="." mode="ColumnName"/>Length = <xsl:value-of select="@length"/>;</xsl:template>
 
 <!-- PROPERTIES -->
 <xsl:template match="column" mode="Properties">
@@ -107,9 +107,9 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Daikoz
+namespace <xsl:value-of select="$namespace"/>
 {
-    static internal class SQLWrapper
+    static internal class SQLWrapperHelper
     {
         internal static async Task&lt;int&gt; UpdateIfModified(MySqlConnection conn, MySqlTransaction transaction, object objToUpdate, object data, string tableName, string[] listColumnName, string[] listColumnPrimaryName)
         {
@@ -175,10 +175,6 @@ namespace Daikoz
             return await sqlCmd.ExecuteNonQueryAsync();
         }
     }
-}
-  
-namespace <xsl:value-of select="$namespace"/>
-{
 <xsl:apply-templates select="sqlwrapper/database[@name = $database or $database = '']/table"/>
 }
 </xsl:template>

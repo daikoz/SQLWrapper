@@ -6,6 +6,15 @@ One feature is that it can look at your database's structure to check if your SQ
 
 Overall, SQLWrapper is a handy tool for making SQL code easier to work with, saving time, and helping you write better code.
 
+## Links
+* [Change log](https://github.com/daikoz/SQLWrapper/blob/master/CHANGELOG.md)
+* [Official website](https://www.sqlwrapper.com)
+* [Package .NET](https://www.nuget.org/packages/Daikoz.SQLWrapper/)
+* [Documentation](https://github.com/daikoz/SQLWrapper/wiki)
+* [Issues/Bugs](https://github.com/daikoz/SQLWrapper/issues)
+* [Videos](https://www.youtube.com/@SQLWrapper)
+* [Facebook](https://www.facebook.com/sqlwrapper/)
+* [Twitter](https://twitter.com/sqlwrapper)
 
 ## Getting started with package NuGet Daikoz.SQLWrapper
 
@@ -206,12 +215,4 @@ This command create a **helper** for **database**. It use **XLST** file to gener
 In template section, you can found several XLST files to generate wrappers and helpers in several programming language.
 You can create or modify your own and use it with **--xslt** parameter.
 
-## Links
-* [Official website](https://www.sqlwrapper.com)
-* [Package .NET](https://www.nuget.org/packages/Daikoz.SQLWrapper/)
-* [Documentation](https://github.com/daikoz/SQLWrapper/wiki)
-* [Issues/Bugs](https://github.com/daikoz/SQLWrapper/issues)
-* [Videos](https://www.youtube.com/@SQLWrapper)
-* [Reddit](https://www.reddit.com/r/sqlwrapper/)
-* [Facebook](https://www.facebook.com/sqlwrapper/)
-* [Twitter](https://twitter.com/sqlwrapper)
+

@@ -34,8 +34,13 @@
 	-->
 	<UsingTask TaskName="Daikoz.SQLWrapper.SQLWrapperTask" AssemblyFile="..\lib\netstandard2.0\Daikoz.SQLWrapper.dll" />
 
-	<Target Name="SQLWrapperBuild" BeforeTargets="BeforeBuild" >
-		<Daikoz.SQLWrapper.SQLWrapperTask ConfigurationFilePath="$(MSBuildProjectDirectory)\sqlwrapper.json" IsCleanning="false" RootNamespace="$(RootNamespace)" />
+	<Target Name="SQLWrapperBuild" BeforeTargets="CoreCompile">
+		<Daikoz.SQLWrapper.SQLWrapperTask ConfigurationFilePath="$(MSBuildProjectDirectory)\sqlwrapper.json" IsCleanning="false" RootNamespace="$(RootNamespace)">
+			<Output TaskParameter="GeneratedSources" ItemName="GeneratedSources" />
+		</Daikoz.SQLWrapper.SQLWrapperTask>
+		<ItemGroup>
+			<Compile Include="@(GeneratedSources)" />
+		</ItemGroup>
 	</Target>
 
 	<Target Name="SQLWrapperClean" AfterTargets="BeforeClean">

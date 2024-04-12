@@ -1,6 +1,7 @@
 ﻿using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -13,6 +14,8 @@ namespace Daikoz.SQLWrapper
 {
     public class SQLWrapperLauncher
     {
+        public List<string> GeneratedSources { get; set; } = [];
+
         private readonly string _ConfigurationFilePath;
         private readonly string _RootNamespace;
         private readonly DateTime _ConfigurationModifiedDate;
@@ -155,7 +158,36 @@ namespace Daikoz.SQLWrapper
             if (!string.IsNullOrWhiteSpace(standartOutput))
             {
                 LogMessage("Output [" + Environment.NewLine + standartOutput + ']');
-                _Log.LogWarning(logCategory, "", "", logFile, 0, 0, 0, 0, standartOutput, null);
+                int lineNumber = 0;
+                int columnNumber = 0;
+                string code = string.Empty;
+                string error = string.Empty;
+                string errorLogFile = logFile;
+
+                Match match = _RegexSQLWrapperErrorSQL.Match(standartOutput);
+                if (match.Success)
+                {
+                    errorLogFile = match.Groups["filepath"].Value;
+                    lineNumber = int.Parse(match.Groups["line"].Value, CultureInfo.InvariantCulture);
+                    columnNumber = int.Parse(match.Groups["position"].Value, CultureInfo.InvariantCulture);
+                    code = match.Groups["code"].Value.TrimStart();
+                    error = match.Groups["message"].Value.TrimStart();
+
+                    _Log.LogWarning(logCategory, code, "", errorLogFile, lineNumber, columnNumber, 0, 0, error.Trim(), null);
+                }
+                else
+                {
+                    match = _RegexSQLWrapperErrorLog.Match(standartOutput);
+                    if (match.Success)
+                    {
+                        code = match.Groups["code"].Value.TrimStart();
+                        error = match.Groups["message"].Value.TrimStart();
+
+                        _Log.LogWarning(logCategory, code, "", logFile, 0, 0, 0, 0, error.Trim(), null);
+                    }
+                    else
+                        _Log.LogWarning(logCategory, "", "", logFile, 0, 0, 0, 0, standartOutput, null);
+                }
             }
 
             // Read error
@@ -321,6 +353,8 @@ namespace Daikoz.SQLWrapper
                         return;
                     }
                 }
+                else
+                    GeneratedSources.Add(outputFilePath);
 
                 // Generate
                 LogMessage(string.Format("Generate Helper for database {0} ('{1}') with XSLT '{2}': '{3}'", helper.Database, databaseFilePath, xlstFilePath, outputFilePath));
@@ -420,6 +454,8 @@ namespace Daikoz.SQLWrapper
                             continue;
                         }
                     }
+                    else
+                        GeneratedSources.Add(outputFilePath);
 
                     // Generate
                     LogMessage(string.Format("Generate wrapper: '{0}'", sqlFilePath));

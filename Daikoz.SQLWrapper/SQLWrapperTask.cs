@@ -5,11 +5,15 @@ using System.IO;
 
 namespace Daikoz.SQLWrapper
 {
-    public class SQLWrapperTask : Task, ITask
+    public class SQLWrapperTask : Task
     {
         public string? ConfigurationFilePath { get; set; }
         public string RootNamespace { get; set; } = "Daikoz.SQLWrapper";
         public bool IsCleanning { get; set; }
+
+        [Output]
+        public string[] GeneratedSources { get; set; } = [];
+
 
         public override bool Execute()
         {
@@ -29,7 +33,9 @@ namespace Daikoz.SQLWrapper
                 }
 
                 Daikoz.SQLWrapper.SQLWrapperLauncher sqlWrapper = new(ConfigurationFilePath, RootNamespace, Log, IsCleanning);
-                return sqlWrapper.Execute();
+                bool result = sqlWrapper.Execute();
+                GeneratedSources = [.. sqlWrapper.GeneratedSources];
+                return result;
             }
             catch (Daikoz.SQLWrapper.SQLWrapperException ex)
             {

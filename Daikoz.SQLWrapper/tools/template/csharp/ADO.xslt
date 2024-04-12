@@ -15,21 +15,21 @@
       <xsl:if test="not(@unsigned = 1)">
         <xsl:choose>
           <xsl:when test=". = 'bigint'">long</xsl:when>
-          <xsl:when test=". = 'binary'">byte[]</xsl:when>       
-          <xsl:when test=". = 'bit'">ulong</xsl:when>      
+          <xsl:when test=". = 'binary'">byte[]</xsl:when>
+          <xsl:when test=". = 'bit'">ulong</xsl:when>
           <xsl:when test=". = 'blob'">byte[]</xsl:when>
           <xsl:when test=". = 'bool'">bool</xsl:when>
-          <xsl:when test=". = 'char'">string</xsl:when>        
-          <xsl:when test=". = 'date'">DateTime</xsl:when>       
-          <xsl:when test=". = 'datetime'">DateTime</xsl:when>       
-          <xsl:when test=". = 'decimal'">decimal</xsl:when>      
-          <xsl:when test=". = 'double'">double</xsl:when>      
-          <xsl:when test=". = 'enum'">string</xsl:when>   
-          <xsl:when test=". = 'float'">float</xsl:when>      
+          <xsl:when test=". = 'char'">string</xsl:when>
+          <xsl:when test=". = 'date'">DateTime</xsl:when>
+          <xsl:when test=". = 'datetime'">DateTime</xsl:when>
+          <xsl:when test=". = 'decimal'">decimal</xsl:when>
+          <xsl:when test=". = 'double'">double</xsl:when>
+          <xsl:when test=". = 'enum'">string</xsl:when>
+          <xsl:when test=". = 'float'">float</xsl:when>
           <xsl:when test=". = 'int'">int</xsl:when>
           <xsl:when test=". = 'longblob'">byte[]</xsl:when>
           <xsl:when test=". = 'longtext'">string</xsl:when>
-          <xsl:when test=". = 'mediumblob'">byte[]</xsl:when>      
+          <xsl:when test=". = 'mediumblob'">byte[]</xsl:when>
           <xsl:when test=". = 'mediumint'">int</xsl:when>
           <xsl:when test=". = 'mediumtext'">string</xsl:when>
           <xsl:when test=". = 'set'">string</xsl:when>
@@ -42,14 +42,14 @@
           <xsl:when test=". = 'tinytext'">string</xsl:when>
           <xsl:when test=". = 'varbinary'">byte[]</xsl:when>
           <xsl:when test=". = 'varchar'">string</xsl:when>
-		  <xsl:when test=". = 'year'">int</xsl:when>
-		  <xsl:otherwise><xsl:value-of select="."/>
+          <xsl:when test=". = 'year'">int</xsl:when>
+          <xsl:otherwise><xsl:value-of select="."/>
           </xsl:otherwise>
         </xsl:choose>
       </xsl:if>
       <xsl:if test="@unsigned = 1">
         <xsl:choose>
-          <xsl:when test=". = 'bigint'">ulong</xsl:when>      
+          <xsl:when test=". = 'bigint'">ulong</xsl:when>
           <xsl:when test=". = 'int'">uint</xsl:when>
           <xsl:when test=". = 'mediumint'">uint</xsl:when>
           <xsl:when test=". = 'smallint'">ushort</xsl:when>
@@ -60,7 +60,7 @@
       </xsl:if>
     </xsl:otherwise>
   </xsl:choose>
-  <xsl:if test="@isnull = 1">?</xsl:if>	
+  <xsl:if test="@isnull = 1">?</xsl:if>
 </xsl:template>
   
 <xsl:template match="type" mode="input">
@@ -115,8 +115,8 @@
 </xsl:template>
 
 <xsl:template match="output">            public <xsl:apply-templates select="./type"/><xsl:text> </xsl:text><xsl:value-of select="name"/> { get; set; } = default!;
-</xsl:template>	
-	
+</xsl:template>
+
 <xsl:template match="input">, <xsl:apply-templates select="./type" mode="input"/><xsl:text> </xsl:text><xsl:value-of select="name"/></xsl:template>
 
 <xsl:template match="query" mode="returntype">
@@ -235,18 +235,18 @@
                 Transaction = transaction,
                 CommandText = @"<xsl:value-of select="text"/>"<xsl:for-each select="query/input/type[@array = 1]">.Replace("(@<xsl:value-of select="../name"/>)", (<xsl:value-of select="../name"/> != null &amp;&amp; <xsl:value-of select="../name"/>.Any()) ? string.Format("({0})", string.Join(",", <xsl:value-of select="../name"/>)) : "(NULL)", StringComparison.Ordinal)</xsl:for-each>
             };
-            <xsl:for-each select="query/input"><xsl:if test="type[@array != 1]">sqlCmd.Parameters.AddWithValue("@<xsl:value-of select="name"/>", <xsl:value-of select="name"/>);
-            </xsl:if></xsl:for-each>
+<xsl:for-each select="query/input"><xsl:if test="type[@array != 1]">            sqlCmd.Parameters.AddWithValue("@<xsl:value-of select="name"/>", <xsl:value-of select="name"/>);
+</xsl:if></xsl:for-each>
             object? result = await sqlCmd.ExecuteScalarAsync();
             if (result != null)
                 <xsl:if test="query[@ignore = 0]/output/type[@isnull = 0]">
                     <xsl:if test="not(query[@ignore = 0]/output/type[@custom]) and not(query[@ignore = 0]/output/type[@lastinsertid = 1])">return (<xsl:value-of select="$returntype"/>)result;</xsl:if>
                     <xsl:if test="query[@ignore = 0]/output/type[@custom]">return (<xsl:value-of select="$returntype"/>)(typeof(<xsl:value-of select="$returntype"/>).IsEnum ? Enum.ToObject(typeof(<xsl:value-of select="$returntype"/>), result) : Convert.ChangeType(result, typeof(<xsl:value-of select="$returntype"/>), System.Globalization.CultureInfo.InvariantCulture));</xsl:if>
-					<xsl:if test="query[@ignore = 0]/output/type[@lastinsertid = 1]">return (<xsl:value-of select="$returntype"/>)Convert.ChangeType(result, typeof(<xsl:value-of select="$returntype"/>), System.Globalization.CultureInfo.InvariantCulture);</xsl:if>
-				</xsl:if>
+                    <xsl:if test="query[@ignore = 0]/output/type[@lastinsertid = 1]">return (<xsl:value-of select="$returntype"/>)Convert.ChangeType(result, typeof(<xsl:value-of select="$returntype"/>), System.Globalization.CultureInfo.InvariantCulture);</xsl:if>
+                </xsl:if>
                 <xsl:if test="query[@ignore = 0]/output/type[@isnull = 1]">
                     <xsl:if test="not(query[@ignore = 0]/output/type[@custom])">return result == DBNull.Value ? null : (<xsl:value-of select="$returntype"/>)result;</xsl:if>
-                    <xsl:if test="query[@ignore = 0]/output/type[@custom]">return result == DBNull.Value ? null : ((<xsl:value-of select="$returntype"/>)(typeof(<xsl:value-of select="$returntype"/>).IsEnum ? Enum.ToObject(typeof(<xsl:value-of select="$returntype"/>), result) : Convert.ChangeType(result, typeof(<xsl:value-of select="$returntype"/>), System.Globalization.CultureInfo.InvariantCulture));</xsl:if>
+                    <xsl:if test="query[@ignore = 0]/output/type[@custom]">return result == DBNull.Value ? null : (<xsl:value-of select="$returntype"/>)(typeof(<xsl:value-of select="$returntype"/>).IsEnum ? Enum.ToObject(typeof(<xsl:value-of select="$returntype"/>), result) : Convert.ChangeType(result, typeof(<xsl:value-of select="$returntype"/>), System.Globalization.CultureInfo.InvariantCulture));</xsl:if>
                 </xsl:if>
             if (!returnDefault)
                 throw new InvalidOperationException("<xsl:value-of select="name"/> return no row");
@@ -386,8 +386,9 @@ namespace <xsl:value-of select="$namespace"/>
     {
 <xsl:apply-templates select="sqlwrapper/sql"/>
     }
-  
-} 
+
+}
+
 </xsl:template>
 
 </xsl:stylesheet>
