@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace Daikoz.SQLWrapper
 {
     [DataContract]
-    internal class Database
+    internal class Schema
     {
         [DataMember]
         public string? Name { get; set; }
@@ -20,10 +20,10 @@ namespace Daikoz.SQLWrapper
     }
 
     [DataContract]
-    internal class Helper
+    internal class Database
     {
         [DataMember]
-        public string? Database { get; set; }
+        public string? Schema { get; set; }
 
         [DataMember]
         public string? Namespace { get; set; }
@@ -36,10 +36,10 @@ namespace Daikoz.SQLWrapper
     }
 
     [DataContract]
-    internal class Wrapper
+    internal class SQL
     {
         [DataMember]
-        public string? Database { get; set; }
+        public string? Schema { get; set; }
 
         [DataMember]
         public string? Namespace { get; set; }
@@ -56,19 +56,26 @@ namespace Daikoz.SQLWrapper
     }
 
     [DataContract]
+    internal class Wrapper
+    {
+        [DataMember]
+        public List<Database>? Database { get; set; }
+
+        [DataMember]
+        public List<SQL>? SQL { get; set; }
+    }
+
+    [DataContract]
     internal class SQLWrapperConfig
     {
         [DataMember]
         public bool Verbose { get; set; } = false;
 
         [DataMember]
-        public List<Database>? Database { get; set; }
+        public List<Schema>? Schema { get; set; }
 
         [DataMember]
-        public List<Helper>? Helper { get; set; }
-
-        [DataMember]
-        public List<Wrapper>? Wrapper { get; set; }
+        public Wrapper? Wrapper { get; set; }
 
     }
 }

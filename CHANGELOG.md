@@ -1,5 +1,27 @@
 # Changelog
 
+## [2.1] (2024-07-08)
+
+### SQLWrapper
+- **break changes** Modify command line name for better understanding
+- Add Linux support (Debian 12)
+- Generate stored procedure and function wrapper for mysql/mariadb
+- Fix error with mariadb/mysql function: UNIX_TIMESTAMP
+- Fix #3 error with mariadb/mysql function: SUBSTR
+- Fix error with mariadb/mysql: EXISTS
+- Fix line break when generate XML request
+
+### Daikoz.SQLWrapper NuGet Package
+- **break changes** Modify sqlwrapper.json configuration for better understanding
+- Add Linux support (Debian 12)
+
+### Template
+- **SQL C# ADO**: Replace mysqlconnector by DbConnection to allow use this template with other database.
+- **Database C#**: Generate stored procedure and function wrapper for mysql/mariadb
+- **Database C#**: Replace mysqlconnector by DbConnection to allow use this template with other database.
+- **Database C#**: Fix formating
+
+
 ## [2.0.1] (2024-04-12)
 
 ### SQLWrapper
@@ -14,7 +36,7 @@
 - Update readme.md
 
 ### Template
-- **C# Helper**: Use int type for length or long instead of uint to avoid int cast with index of string function.
-- **C# Helper**: Rename SQLWrapper::UpdateIfModified to SQLWrapperHelper::UpdateIfModified method and move it in same namespace to avoid warning this Daikoz.SQLWrapper NuGet package.
-- **C# Helper**: Fix tab/space mix
-- **C# Helper**: Fix spaces
+- **Database C#**: Use int type for length or long instead of uint to avoid int cast with index of string function.
+- **Database C#**: Rename SQLWrapper::UpdateIfModified to SQLWrapperHelper::UpdateIfModified method and move it in same namespace to avoid warning this Daikoz.SQLWrapper NuGet package.
+- **SQL C# ADO**: Fix tab/space mix
+- **SQL C# ADO**: Fix spaces

@@ -63,16 +63,14 @@ namespace Daikoz.SQLWrapper {
         /// <summary>
         ///   Looks up a localized string similar to {
         ///    &quot;Verbose&quot;: false,
-        ///    &quot;Database&quot;: [
+        ///    &quot;Schema&quot;: [
         ///        {
         ///            &quot;Name&quot;: &quot;Name of this database. Should be contain only characters: a-z A-Z 0-9 _ -&quot;,
         ///            &quot;ConnectionString&quot;: &quot;.NET connection string to connect to database. If empty, use FilePath to get cached database previously generated.&quot;,
-        ///            &quot;FilePath&quot;: &quot;File path of cached database. If empty, store it in obj of project&quot;
-        ///        }
-        ///    ],
-        ///    &quot;Helper&quot;: [
-        ///        {
-        ///            &quot;Database&quot;: &quot;Name of database defined in Database sect [rest of string was truncated]&quot;;.
+        ///            &quot;FilePath&quot;: &quot;File path of cached database schema. If empty, store it in obj of project&quot;,
+        ///            &quot;CustomType&quot;: [
+        ///                &quot;SQLTable.SQLType=LanguageType&quot;,
+        ///                &quot;SQLColumnNa [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string DefaultConfiguration {
             get {

@@ -120,30 +120,37 @@
   <data name="DefaultConfiguration" xml:space="preserve">
     <value>{
     "Verbose": false,
-    "Database": [
+    "Schema": [
         {
             "Name": "Name of this database. Should be contain only characters: a-z A-Z 0-9 _ -",
             "ConnectionString": ".NET connection string to connect to database. If empty, use FilePath to get cached database previously generated.",
-            "FilePath": "File path of cached database. If empty, store it in obj of project"
+            "FilePath": "File path of cached database schema. If empty, store it in obj of project",
+            "CustomType": [
+                "SQLTable.SQLType=LanguageType",
+                "SQLColumnName=LanguageType",
+                "@SQLVariable=LanguageType"
+            ]
         }
     ],
-    "Helper": [
-        {
-            "Database": "Name of database defined in Database section",
-            "Namespace": "Namespace in generated source. If empty, take the default namespace of project",
-            "XLST": "Provide your own XLST to generate a helper. If empty, use default XLST provided by SQLWrapper",
-            "OutputFilePath": "File path of helper"
-        }
-    ],
-    "Wrapper": [
-        {
-            "Database": "Name of database defined in Database section",
-            "Namespace": "Namespace in generated source. If empty, take the default namespace of project",
-            "XLST": "Provide your own XLST to generate the wrapper. If empty, use default XLST provided by SQLWrapper",
-            "Path": "Absolute or relative path where to search sql file pattern. If empty, use path of project",
-            "FilePattern": "SQL file to wrap. If empty, use \"*.sql\""
-        }
-    ]
+    "Wrapper": {
+        "Database": [
+            {
+                "Schema": "Name of database schema defined in Schema section",
+                "Namespace": "Namespace in generated source. If empty, take the default namespace of project",
+                "XLST": "Provide your own XLST to generate a helper. If empty, use default XLST provided by SQLWrapper",
+                "OutputFilePath": "File path of schema"
+            }
+        ],
+        "SQL": [
+            {
+                "Schema": "Name of database defined in Schema section",
+                "Namespace": "Namespace in generated source. If empty, take the default namespace of project",
+                "XLST": "Provide your own XLST to generate the wrapper. If empty, use default XLST provided by SQLWrapper",
+                "Path": "Absolute or relative path where to search sql file pattern. If empty, use path of project",
+                "FilePattern": "SQL file to wrap. If empty, use \"*.sql\""
+            }
+        ]
+    }
 }</value>
   </data>
 </root>

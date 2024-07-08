@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -71,14 +72,14 @@ namespace Daikoz.SQLWrapper
             if (databaseName == null || string.IsNullOrWhiteSpace(databaseName))
                 throw new SQLWrapperException(ErrorMessage.MsgConfigurationDatabaseNameNotDefined.ErrorCode, _ConfigurationFilePath, ErrorMessage.MsgConfigurationDatabaseNameNotDefined.Message);
 
-            if (_Config.Database != null)
-                foreach (Database database in _Config.Database)
+            if (_Config.Schema != null)
+                foreach (Schema source in _Config.Schema)
                 {
-                    if (database.Name == databaseName)
+                    if (source.Name == databaseName)
                     {
-                        if (database.FilePath == null || string.IsNullOrWhiteSpace(database.FilePath))
+                        if (source.FilePath == null || string.IsNullOrWhiteSpace(source.FilePath))
                             return DefaultDatabaseFilePath(databaseName);
-                        return database.FilePath;
+                        return source.FilePath;
                     }
                 }
 
@@ -98,10 +99,10 @@ namespace Daikoz.SQLWrapper
 
         private string[] GetDatabaseCustomType(string databaseName)
         {
-            if (_Config.Database != null)
-                foreach (Database database in _Config.Database)
-                    if (database.Name == databaseName && database.CustomType != null)
-                        return database.CustomType;
+            if (_Config.Schema != null)
+                foreach (Schema schema in _Config.Schema)
+                    if (schema.Name == databaseName && schema.CustomType != null)
+                        return schema.CustomType;
             return [];
         }
 
@@ -110,21 +111,21 @@ namespace Daikoz.SQLWrapper
             LogMessage("Start");
 
             // database
-            if (_Config.Database == null || _Config.Database.Count == 0)
+            if (_Config.Schema == null || _Config.Schema.Count == 0)
                 throw new SQLWrapperException(ErrorMessage.MsgConfigurationDatabaseSectionNotDefined.ErrorCode, _ConfigurationFilePath, ErrorMessage.MsgConfigurationDatabaseSectionNotDefined.Message);
             else
-                foreach (Database database in _Config.Database)
-                    CacheDatabase(database);
+                foreach (Schema schema in _Config.Schema)
+                    CacheDatabase(schema);
 
             // Helper
-            if (_Config.Helper != null)
-                foreach (Helper helper in _Config.Helper)
-                    GenerateHelper(helper);
+            if (_Config.Wrapper != null && _Config.Wrapper.Database != null)
+                foreach (Database wrapperdb in _Config.Wrapper.Database)
+                    GenerateHelper(wrapperdb);
 
             // Wrapper
-            if (_Config.Wrapper != null)
-                foreach (Wrapper wrapper in _Config.Wrapper)
-                    GenerateWrapper(wrapper);
+            if (_Config.Wrapper != null && _Config.Wrapper.SQL != null)
+                foreach (SQL wrappersql in _Config.Wrapper.SQL)
+                    GenerateWrapper(wrappersql);
 
             LogMessage("End");
             return true;
@@ -134,7 +135,8 @@ namespace Daikoz.SQLWrapper
         {
             // Find sqlwrapper executable path
             string assemblyDirectory = GetAssemblyDirectory();
-            string sqlWrapperPath = Path.Combine(assemblyDirectory, "tools", "SQLWrapper.exe");
+            string sqlWrapperPath = Path.Combine(assemblyDirectory, "tools", "SQLWrapper");
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) sqlWrapperPath += ".exe";
             if (!File.Exists(sqlWrapperPath))
                 throw new SQLWrapperException(ErrorMessage.MsgConfigurationSQLWrapperToolNotFound.ErrorCode, logFile, String.Format(ErrorMessage.MsgConfigurationSQLWrapperToolNotFound.Message, sqlWrapperPath));
 
@@ -233,16 +235,16 @@ namespace Daikoz.SQLWrapper
             sqlwrapperProcess.Close();
         }
 
-        private void CacheDatabase(Database database)
+        private void CacheDatabase(Schema schema)
         {
-            if (database.Name == null || string.IsNullOrWhiteSpace(database.Name))
+            if (schema.Name == null || string.IsNullOrWhiteSpace(schema.Name))
                 throw new SQLWrapperException(ErrorMessage.MsgConfigurationDatabaseNameNotDefined.ErrorCode, _ConfigurationFilePath, ErrorMessage.MsgConfigurationDatabaseNameNotDefined.Message);
-            if (!_RegexDatabaseName.IsMatch(database.Name))
+            if (!_RegexDatabaseName.IsMatch(schema.Name))
                 throw new SQLWrapperException(ErrorMessage.MsgConfigurationDatabaseNameCharacter.ErrorCode, _ConfigurationFilePath, ErrorMessage.MsgConfigurationDatabaseNameCharacter.Message);
 
-            string cacheFilePath = database.FilePath ?? "";
+            string cacheFilePath = schema.FilePath ?? "";
             if (string.IsNullOrWhiteSpace(cacheFilePath))
-                cacheFilePath = DefaultDatabaseFilePath(database.Name);
+                cacheFilePath = DefaultDatabaseFilePath(schema.Name);
 
             if (!Path.IsPathRooted(cacheFilePath))
                 cacheFilePath = Path.Combine(System.Environment.CurrentDirectory, cacheFilePath);
@@ -253,7 +255,7 @@ namespace Daikoz.SQLWrapper
                 LogMessage("Remove database: " + cacheFilePath);
                 if (File.Exists(cacheFilePath))
                 {
-                    if (string.IsNullOrWhiteSpace(database.ConnectionString))
+                    if (string.IsNullOrWhiteSpace(schema.ConnectionString))
                         LogMessage("No connection string defined. Keep file cache: " + cacheFilePath);
                     else
                         File.Delete(cacheFilePath);
@@ -272,7 +274,7 @@ namespace Daikoz.SQLWrapper
                     }
 
                     // Do nothing if connection string is not defined
-                    if (string.IsNullOrWhiteSpace(database.ConnectionString))
+                    if (string.IsNullOrWhiteSpace(schema.ConnectionString))
                     {
                         LogMessage("Configuration is more recent than cache. It should be updated but connection string is not defined.");
                         return;
@@ -281,14 +283,14 @@ namespace Daikoz.SQLWrapper
                     File.Delete(cacheFilePath);
                 }
 
-                if (database.ConnectionString == null || string.IsNullOrWhiteSpace(database.ConnectionString))
+                if (schema.ConnectionString == null || string.IsNullOrWhiteSpace(schema.ConnectionString))
                     throw new SQLWrapperException(ErrorMessage.MsgConfigurationDatabaseConnectionNotDefined.ErrorCode, _ConfigurationFilePath, ErrorMessage.MsgConfigurationDatabaseConnectionNotDefined.Message);
 
                 StringBuilder argument = new();
-                argument.Append("database");
+                argument.Append("schema");
                 argument.Append(" -t mariadb");
                 argument.Append(" -c");
-                argument.Append(" \"" + database.ConnectionString.Replace("\"", "\"\"") + "\"");
+                argument.Append(" \"" + schema.ConnectionString.Replace("\"", "\"\"") + "\"");
                 argument.Append(" -o " + cacheFilePath);
 
                 StartProcess(argument.ToString(), ErrorMessage.Category, _ConfigurationFilePath);
@@ -298,13 +300,13 @@ namespace Daikoz.SQLWrapper
         }
 
 
-        private void GenerateHelper(Helper helper)
+        private void GenerateHelper(Database wrapperdb)
         {
             // Check OutputFilePath
-            if (helper.OutputFilePath == null || string.IsNullOrWhiteSpace(helper.OutputFilePath))
+            if (wrapperdb.OutputFilePath == null || string.IsNullOrWhiteSpace(wrapperdb.OutputFilePath))
                 throw new SQLWrapperException(ErrorMessage.MsgSQLWrapperHelperOutputFilePathNotDefined.ErrorCode, _ConfigurationFilePath, ErrorMessage.MsgSQLWrapperHelperOutputFilePathNotDefined.Message);
 
-            string outputFilePath = helper.OutputFilePath;
+            string outputFilePath = wrapperdb.OutputFilePath;
             if (!Path.IsPathRooted(outputFilePath))
                 outputFilePath = Path.Combine(System.Environment.CurrentDirectory, outputFilePath);
 
@@ -312,21 +314,21 @@ namespace Daikoz.SQLWrapper
             if (_IsCleanning)
             {
                 LogMessage("Remove helper: " + outputFilePath);
-                File.Delete(helper.OutputFilePath);
+                File.Delete(wrapperdb.OutputFilePath);
             }
             else
             {
                 // Check Database name
-                if (helper.Database == null || string.IsNullOrWhiteSpace(helper.Database))
+                if (wrapperdb.Schema == null || string.IsNullOrWhiteSpace(wrapperdb.Schema))
                     throw new SQLWrapperException(ErrorMessage.MsgConfigurationDatabaseNameNotDefined.ErrorCode, _ConfigurationFilePath, ErrorMessage.MsgConfigurationDatabaseNameNotDefined.Message);
 
-                string databaseFilePath = GetDatabaseFilePath(helper.Database);
+                string databaseFilePath = GetDatabaseFilePath(wrapperdb.Schema);
 
                 // XSLT
                 string assemblyDirectory = GetAssemblyDirectory();
                 string xlstFilePath = Path.Combine(assemblyDirectory, "tools", "template", "csharp", "helper.xslt");
-                if (helper.XLST != null && !string.IsNullOrWhiteSpace(helper.XLST))
-                    xlstFilePath = helper.XLST;
+                if (wrapperdb.XLST != null && !string.IsNullOrWhiteSpace(wrapperdb.XLST))
+                    xlstFilePath = wrapperdb.XLST;
                 if (!Path.IsPathRooted(xlstFilePath))
                     xlstFilePath = Path.Combine(assemblyDirectory, xlstFilePath);
                 if (!File.Exists(xlstFilePath))
@@ -334,11 +336,11 @@ namespace Daikoz.SQLWrapper
 
                 // Namespace
                 string rootNamespace = _RootNamespace;
-                if (helper.Namespace != null && !string.IsNullOrWhiteSpace(helper.Namespace))
-                    rootNamespace = helper.Namespace;
+                if (wrapperdb.Namespace != null && !string.IsNullOrWhiteSpace(wrapperdb.Namespace))
+                    rootNamespace = wrapperdb.Namespace;
 
                 // Custom Type
-                string[] customType = GetDatabaseCustomType(helper.Database);
+                string[] customType = GetDatabaseCustomType(wrapperdb.Schema);
 
                 // Check uptodate
                 if (File.Exists(outputFilePath))
@@ -357,11 +359,11 @@ namespace Daikoz.SQLWrapper
                     GeneratedSources.Add(outputFilePath);
 
                 // Generate
-                LogMessage(string.Format("Generate Helper for database {0} ('{1}') with XSLT '{2}': '{3}'", helper.Database, databaseFilePath, xlstFilePath, outputFilePath));
+                LogMessage(string.Format("Generate Helper for database {0} ('{1}') with XSLT '{2}': '{3}'", wrapperdb.Schema, databaseFilePath, xlstFilePath, outputFilePath));
 
                 StringBuilder argument = new();
-                argument.Append("helper");
-                argument.Append(" -d " + databaseFilePath);
+                argument.Append("wrapper-database");
+                argument.Append(" -s " + databaseFilePath);
                 argument.Append(" -o " + outputFilePath);
                 argument.Append(" -p namespace=" + rootNamespace);
                 if (customType.Length > 0)
@@ -376,20 +378,20 @@ namespace Daikoz.SQLWrapper
             }
         }
 
-        private void GenerateWrapper(Wrapper wrapper)
+        private void GenerateWrapper(SQL wrappersql)
         {
             // FilePath
             string directoryPath = Path.GetDirectoryName(_ConfigurationFilePath);
-            if (wrapper.Path != null && !string.IsNullOrWhiteSpace(wrapper.Path))
-                if (Path.IsPathRooted(wrapper.Path))
-                    directoryPath = wrapper.Path;
+            if (wrappersql.Path != null && !string.IsNullOrWhiteSpace(wrappersql.Path))
+                if (Path.IsPathRooted(wrappersql.Path))
+                    directoryPath = wrappersql.Path;
                 else
-                    directoryPath = Path.Combine(directoryPath, wrapper.Path);
+                    directoryPath = Path.Combine(directoryPath, wrappersql.Path);
             if (!Directory.Exists(directoryPath))
                 throw new SQLWrapperException(ErrorMessage.MsgSQLWrapperDirectoryNotFound.ErrorCode, _ConfigurationFilePath, string.Format(ErrorMessage.MsgSQLWrapperDirectoryNotFound.Message, directoryPath));
 
             // File Pattern
-            string filePattern = wrapper.FilePattern ?? "*.sql";
+            string filePattern = wrappersql.FilePattern ?? "*.sql";
 
             // List SQL files
             LogMessage(string.Format("Search '{0}' in '{1}'", filePattern, directoryPath));
@@ -410,28 +412,28 @@ namespace Daikoz.SQLWrapper
             else
             {
                 // Check Database name
-                if (wrapper.Database == null || string.IsNullOrWhiteSpace(wrapper.Database))
+                if (wrappersql.Schema == null || string.IsNullOrWhiteSpace(wrappersql.Schema))
                     throw new SQLWrapperException(ErrorMessage.MsgConfigurationDatabaseNameNotDefined.ErrorCode, _ConfigurationFilePath, ErrorMessage.MsgConfigurationDatabaseNameNotDefined.Message);
 
-                string databaseFilePath = GetDatabaseFilePath(wrapper.Database);
+                string databaseFilePath = GetDatabaseFilePath(wrappersql.Schema);
 
                 // Namespace
                 string rootNamespace = _RootNamespace;
-                if (wrapper.Namespace != null && !string.IsNullOrWhiteSpace(wrapper.Namespace))
-                    rootNamespace = wrapper.Namespace;
+                if (wrappersql.Namespace != null && !string.IsNullOrWhiteSpace(wrappersql.Namespace))
+                    rootNamespace = wrappersql.Namespace;
 
                 // XSLT
                 string assemblyDirectory = GetAssemblyDirectory();
                 string xlstFilePath = Path.Combine(assemblyDirectory, "tools", "template", "csharp", "ADO.xslt");
-                if (wrapper.XLST != null && !string.IsNullOrWhiteSpace(wrapper.XLST))
-                    xlstFilePath = wrapper.XLST;
+                if (wrappersql.XLST != null && !string.IsNullOrWhiteSpace(wrappersql.XLST))
+                    xlstFilePath = wrappersql.XLST;
                 if (!Path.IsPathRooted(xlstFilePath))
                     xlstFilePath = Path.Combine(assemblyDirectory, xlstFilePath);
                 if (!File.Exists(xlstFilePath))
                     throw new SQLWrapperException(ErrorMessage.MsgConfigurationWrapperXSLTNotFound.ErrorCode, _ConfigurationFilePath, string.Format(ErrorMessage.MsgConfigurationWrapperXSLTNotFound.Message, xlstFilePath));
 
                 // Custom Type
-                string[] customType = GetDatabaseCustomType(wrapper.Database);
+                string[] customType = GetDatabaseCustomType(wrappersql.Schema);
 
                 // Generate wrapper
                 LogMessage(string.Format("Generate wrapper for database {0} with XSLT '{1}':", databaseFilePath, xlstFilePath));
@@ -468,8 +470,8 @@ namespace Daikoz.SQLWrapper
                     string className = directoriesName.Length >= 1 ? directoriesName[directoriesName.Length - 1] : "SQLWrapper";
 
                     StringBuilder argument = new();
-                    argument.Append("wrapper");
-                    argument.Append(" -d " + databaseFilePath);
+                    argument.Append("wrapper-sql");
+                    argument.Append(" -s " + databaseFilePath);
                     argument.Append(" -i " + sqlFilePath);
                     argument.Append(" -o " + outputFilePath);
                     argument.Append(" -p namespace=" + newNameSpace + " classname=" + className);

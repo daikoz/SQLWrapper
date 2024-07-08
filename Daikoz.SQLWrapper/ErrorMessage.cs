@@ -13,7 +13,7 @@
         public static readonly (string ErrorCode, string Message) MsgConfigurationSQLWrapperToolNotFound = ("SW00506", "sqlwrapper executable not found in: {0}");
         public static readonly (string ErrorCode, string Message) MsgSQLWrapperExecution = ("SW00507", "Error during execution of sqlwrapper: {0}");
         public static readonly (string ErrorCode, string Message) MsgSQLWrapperHelperOutputFilePathNotDefined = ("SW00508", "Helper output filepath not defined");
-        public static readonly (string ErrorCode, string Message) MsgConfigurationDatabaseSectionNotDefined = ("SW00509", "No database defined");
+        public static readonly (string ErrorCode, string Message) MsgConfigurationDatabaseSectionNotDefined = ("SW00509", "No schema database defined");
         public static readonly (string ErrorCode, string Message) MsgConfigurationDatabaseNotFound = ("SW00510", "Database name is not found: {0}");
         public static readonly (string ErrorCode, string Message) MsgConfigurationHelperXSLTNotFound = ("SW00511", "XSLT helper file not found: {0}");
         public static readonly (string ErrorCode, string Message) MsgSQLWrapperDirectoryNotFound = ("SW00512", "Path to search SQL files not found: {0}");
