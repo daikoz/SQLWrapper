@@ -36,15 +36,16 @@
 			<xsl:value-of select="$LB" />
 			<xsl:value-of select="$ind2" />public static async Task&lt;int&gt; UpdateIfModified(DbConnection conn, DbTransaction transaction, object objToUpdate, object data)<xsl:value-of select="$LB" />
 			<xsl:value-of select="$ind2" />{<xsl:value-of select="$LB" />
-			<xsl:value-of select="$ind3" />return await SQLWrapperHelper.UpdateIfModified(conn, transaction, objToUpdate, data, "<xsl:value-of select="@name"/>", new string[] { <xsl:apply-templates select="column[@key != 'primarykey' or not(@key)]" mode="UpdateIfModified_Column" /> }, new string[] { <xsl:apply-templates select="column[@key = 'primarykey']" mode="UpdateIfModified_Column" /> });<xsl:value-of select="$LB" />
+			<xsl:value-of select="$ind3" />return await <xsl:value-of select="$database" />Helper.UpdateIfModified(conn, transaction, objToUpdate, data, "<xsl:value-of select="@name"/>", [<xsl:apply-templates select="column[@key != 'primarykey' or not(@key)]" mode="UpdateIfModified_Column" />], [<xsl:apply-templates select="column[@key = 'primarykey']" mode="UpdateIfModified_Column" />]);<xsl:value-of select="$LB" />
 			<xsl:value-of select="$ind2" />}<xsl:value-of select="$LB" />
 		</xsl:if>
 	</xsl:template>
 
-	<!-- COLUMN NAME-->
-	<xsl:template match="column" mode="ColumnName">
+	<!-- ID NAME-->
+	<xsl:template match="database | table | column | routine" mode="IdName">
 		<xsl:if test="@name = ../@name">_</xsl:if>
-		<xsl:value-of select="translate(@name,' ','_')"/>
+		<xsl:value-of select="translate(substring(@name, 1, 1), 'abcdefghijklmnopqrstuvwxyz ', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ_')"/>
+		<xsl:value-of select="translate(substring(@name, 2),' ','_')"/>
 	</xsl:template>
 
 	<!-- COLUMN -->
@@ -52,12 +53,12 @@
 		<xsl:value-of select="$ind2" />public const <xsl:choose>
 			<xsl:when test="@length &lt;= 2147483647">int </xsl:when>
 			<xsl:otherwise>long </xsl:otherwise>
-		</xsl:choose> <xsl:apply-templates select="." mode="ColumnName"/>Length = <xsl:value-of select="@length"/>;<xsl:value-of select="$LB" />
+		</xsl:choose> <xsl:apply-templates select="." mode="IdName"/>Length = <xsl:value-of select="@length"/>;<xsl:value-of select="$LB" />
 	</xsl:template>
 
 	<!-- PROPERTIES -->
 	<xsl:template match="column" mode="Properties">
-		<xsl:value-of select="$ind2" />public <xsl:apply-templates select="." mode="typeonly"/><xsl:text> </xsl:text><xsl:apply-templates select="." mode="ColumnName"/> { get; set; } = default!;<xsl:value-of select="$LB" />
+		<xsl:value-of select="$ind2" />public <xsl:apply-templates select="." mode="typeonly"/><xsl:text> </xsl:text><xsl:apply-templates select="." mode="IdName"/> { get; set; } = default!;<xsl:value-of select="$LB" />
 	</xsl:template>
 
 	<xsl:template match="column | parameter" mode="typeonly">
@@ -122,7 +123,7 @@
 	<!-- TABLE -->
 	<xsl:template match="table">
 		<xsl:value-of select="$LB" />
-		<xsl:value-of select="$ind" />public partial class <xsl:value-of select="@name"/><xsl:value-of select="$LB" />
+		<xsl:value-of select="$ind" />public partial class <xsl:apply-templates select="." mode="IdName"/><xsl:value-of select="$LB" />
 		<xsl:value-of select="$ind" />{<xsl:value-of select="$LB" />
 		<xsl:apply-templates select="column[@length]" mode="TypeLength"/>
 		<xsl:value-of select="$LB" />
@@ -137,7 +138,7 @@
 		<xsl:value-of select="$LB" />
 		<xsl:value-of select="$ind3" />DbParameter param<xsl:value-of select="position()" /> = sqlCmd.CreateParameter();<xsl:value-of select="$LB" />
 		<xsl:value-of select="$ind3" />param<xsl:value-of select="position()" />.ParameterName = "@<xsl:value-of select="@name"/>";<xsl:value-of select="$LB" />
-		<xsl:if test="@mode != 'out'">
+		<xsl:if test="@mode != 'out' and @mode != 'return'">
 			<xsl:value-of select="$ind3" />param<xsl:value-of select="position()" />.Value = <xsl:value-of select="@name"/>;<xsl:value-of select="$LB" />
 		</xsl:if>
 		<xsl:if test="@mode = 'out'">
@@ -145,6 +146,9 @@
 		</xsl:if>
 		<xsl:if test="@mode = 'inout'">
 			<xsl:value-of select="$ind3" />param<xsl:value-of select="position()" />.Direction = System.Data.ParameterDirection.InputOutput;<xsl:value-of select="$LB" />
+		</xsl:if>
+		<xsl:if test="@mode = 'return'">
+			<xsl:value-of select="$ind3" />param<xsl:value-of select="position()" />.Direction = System.Data.ParameterDirection.ReturnValue;<xsl:value-of select="$LB" />
 		</xsl:if>
 		<xsl:value-of select="$ind3" />sqlCmd.Parameters.Add(param<xsl:value-of select="position()" />);<xsl:value-of select="$LB" />
 	</xsl:template>
@@ -180,20 +184,20 @@
 			<xsl:apply-templates select="parameter[@mode='return']" mode="typeonly"/>
 			<xsl:text>&gt;</xsl:text>
 		</xsl:if>
-		<xsl:text> </xsl:text><xsl:value-of select="@name"/>(DbConnection conn, DbTransaction transaction<xsl:apply-templates select="parameter[@mode!='return']" mode="function"/>)<xsl:value-of select="$LB" />
+		<xsl:text> </xsl:text><xsl:apply-templates select="." mode="IdName"/>(DbConnection conn, DbTransaction transaction<xsl:apply-templates select="parameter[@mode!='return']" mode="function"/>)<xsl:value-of select="$LB" />
 		<xsl:value-of select="$ind2" />{<xsl:value-of select="$LB" />
 		<xsl:value-of select="$ind3" />using DbCommand sqlCmd = conn.CreateCommand();<xsl:value-of select="$LB" />
 		<xsl:value-of select="$ind3" />sqlCmd.Connection = conn;<xsl:value-of select="$LB" />
 		<xsl:value-of select="$ind3" />sqlCmd.Transaction = transaction;<xsl:value-of select="$LB" />
 		<xsl:value-of select="$ind3" />sqlCmd.CommandText = @"<xsl:value-of select="@name"/>";<xsl:value-of select="$LB" />
 		<xsl:value-of select="$ind3" />sqlCmd.CommandType = System.Data.CommandType.StoredProcedure;<xsl:value-of select="$LB" />
-		<xsl:apply-templates select="parameter[@mode != 'return']" mode="call"/>
+		<xsl:apply-templates select="parameter" mode="call"/>
 		<xsl:value-of select="$LB" />
 		<xsl:if test="parameter[@mode = 'return']">
-			<xsl:if test="parameter[@mode='out'] or parameter[@mode='ref']">
+			<xsl:if test="not(parameter[@mode='out'] or parameter[@mode='ref'])">
 				<xsl:value-of select="$ind3" />return (<xsl:apply-templates select="parameter[@mode = 'return']" mode="typeonly"/>)await sqlCmd.ExecuteScalarAsync();<xsl:value-of select="$LB" />
 			</xsl:if>
-			<xsl:if test="not(parameter[@mode='out'] or parameter[@mode='ref'])">
+			<xsl:if test="parameter[@mode='out'] or parameter[@mode='ref']">
 				<xsl:value-of select="$ind3" />return (<xsl:apply-templates select="parameter[@mode = 'return']" mode="typeonly"/>)sqlCmd.ExecuteScalar();<xsl:value-of select="$LB" />
 			</xsl:if>
 		</xsl:if>
@@ -211,7 +215,7 @@
 		<xsl:value-of select="$LB" />
 	</xsl:template>
 
-	<!-- database -->
+	<!-- DATABASE -->
 	<xsl:template match="database">
 		<xsl:text>using System;
 using System.Data.Common;
@@ -223,14 +227,14 @@ namespace </xsl:text>
 		<xsl:value-of select="$namespace"/>
 		<xsl:text>
 {
-    static internal class SQLWrapperHelper
+    static partial class </xsl:text>
+		<xsl:apply-templates select="." mode="IdName"/>
+		<xsl:text>Helper
     {
         internal static async Task&lt;int&gt; UpdateIfModified(DbConnection conn, DbTransaction transaction, object objToUpdate, object data, string tableName, string[] listColumnName, string[] listColumnPrimaryName)
         {
-            if (objToUpdate == null)
-                throw new ArgumentNullException(nameof(objToUpdate));
-            if (data == null)
-                throw new ArgumentNullException(nameof(data));
+            ArgumentNullException.ThrowIfNull(objToUpdate);
+            ArgumentNullException.ThrowIfNull(data);
 
             using DbCommand sqlCmd = conn.CreateCommand();
             sqlCmd.Connection = conn;
@@ -240,7 +244,7 @@ namespace </xsl:text>
             Type typeObjToUpdate = objToUpdate.GetType();
 
             bool hasValueModified = false;
-            StringBuilder strQuery = new StringBuilder("UPDATE " + tableName + " SET");
+            StringBuilder strQuery = new("UPDATE " + tableName + " SET");
             foreach (string colName in listColumnName)
             {
                 PropertyInfo? propertyInfoData = typeObjToUpdate.GetProperty(colName);
@@ -279,9 +283,7 @@ namespace </xsl:text>
                     strQuery.Append(" WHERE " + colNamePrimary + " = @" + colNamePrimary);
                 else
                     strQuery.Append(" AND " + colNamePrimary + " = @" + colNamePrimary);
-                PropertyInfo? propertyInfo = typeObjToUpdate.GetProperty(colNamePrimary);
-                if (propertyInfo == null)
-                    throw new ArgumentException("UpdateIfModified: objToUpdate doesn't contain primary key " + colNamePrimary);
+                PropertyInfo propertyInfo = typeObjToUpdate.GetProperty(colNamePrimary) ?? throw new ArgumentException("UpdateIfModified: objToUpdate doesn't contain primary key " + colNamePrimary);
 
                 DbParameter param = sqlCmd.CreateParameter();
                 param.ParameterName = colNamePrimary;
@@ -296,14 +298,13 @@ namespace </xsl:text>
 
             return await sqlCmd.ExecuteNonQueryAsync();
         }
-    }
 </xsl:text>
-		<xsl:apply-templates select="table"/>
 		<xsl:value-of select="$LB" />
-		<xsl:value-of select="$ind" />public partial class <xsl:value-of select="@name"/><xsl:value-of select="$LB" />
-		<xsl:value-of select="$ind" />{<xsl:value-of select="$LB" />
 		<xsl:apply-templates select="routine"/>
-		<xsl:value-of select="$ind" />}<xsl:value-of select="$LB" />
+		<xsl:value-of select="$ind" />
+		<xsl:text>}</xsl:text>
+		<xsl:value-of select="$LB" />
+		<xsl:apply-templates select="table"/>
 		<xsl:text>}</xsl:text>
 	</xsl:template>
 

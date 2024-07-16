@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.1.1] (2024-07-17)
+
+### Daikoz.SQLWrapper NuGet Package
+- Fix issue: database name is not provided to XSLT.
+
+### Template
+- **Database C#**: Fix return value for function
+- **Database C#**: Fix column, table and method name to follow microft recommendation to avoid message IDEXXXX
+- **Database C#**: Move UpdateIfModified method in database class to avoid compilation error with several database helper
+
+
 ## [2.1] (2024-07-08)
 
 ### SQLWrapper

@@ -365,7 +365,7 @@ namespace Daikoz.SQLWrapper
                 argument.Append("wrapper-database");
                 argument.Append(" -s " + databaseFilePath);
                 argument.Append(" -o " + outputFilePath);
-                argument.Append(" -p namespace=" + rootNamespace);
+                argument.Append(" -p namespace=" + rootNamespace + " database=" + wrapperdb.Schema);
                 if (customType.Length > 0)
                 {
                     argument.Append(" -t ");
