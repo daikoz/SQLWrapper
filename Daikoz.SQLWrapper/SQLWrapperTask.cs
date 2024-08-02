@@ -2,6 +2,7 @@
 using Microsoft.Build.Utilities;
 using System;
 using System.IO;
+using static Daikoz.SQLWrapper.SQLWrapperLauncher;
 
 namespace Daikoz.SQLWrapper
 {
@@ -10,6 +11,7 @@ namespace Daikoz.SQLWrapper
         public string? ConfigurationFilePath { get; set; }
         public string RootNamespace { get; set; } = "Daikoz.SQLWrapper";
         public bool IsCleanning { get; set; }
+        public string LanguageTarget { get; set; } = ".csproj";
 
         [Output]
         public string[] GeneratedSources { get; set; } = [];
@@ -32,7 +34,14 @@ namespace Daikoz.SQLWrapper
                     return false;
                 }
 
-                Daikoz.SQLWrapper.SQLWrapperLauncher sqlWrapper = new(ConfigurationFilePath, RootNamespace, Log, IsCleanning);
+                SQLWrapperLauncher.LanguageTarget languageTarget = SQLWrapperLauncher.LanguageTarget.csharp;
+                languageTarget = LanguageTarget switch
+                {
+                    ".vbproj" => SQLWrapperLauncher.LanguageTarget.visualbasic,
+                    ".fsharp" => SQLWrapperLauncher.LanguageTarget.fsharp,
+                    _ => SQLWrapperLauncher.LanguageTarget.csharp,
+                };
+                Daikoz.SQLWrapper.SQLWrapperLauncher sqlWrapper = new(ConfigurationFilePath, RootNamespace, Log, IsCleanning, languageTarget);
                 bool result = sqlWrapper.Execute();
                 GeneratedSources = [.. sqlWrapper.GeneratedSources];
                 return result;

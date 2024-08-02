@@ -21,5 +21,4 @@
         public static readonly (string ErrorCode, string Message) MsgConfigurationWrapperXSLTNotFound = ("SW00514", "XSLT wrapper file not found: {0}");
     }
 
-
 }

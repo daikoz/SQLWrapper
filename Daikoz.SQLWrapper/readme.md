@@ -20,8 +20,8 @@ Overall, SQLWrapper is a handy tool for making SQL code easier to work with, sav
 
 | Database | language | function wrapper | stored procedure wrapper | SQL query wrapper | check SQL query syntax |
 | --- | :---: | :---: | :---: | :---: | :---: |
-| **mysql** | C# .Net | ✓ | ✓ | ✓ | ✓ |
-| **mariadb** | C# .Net | ✓ | ✓ | ✓ | ✓ |
+| **mysql** | C# .Net<br/>Visual Basic .Net | ✓ | ✓ | ✓ | ✓ |
+| **mariadb** | C# .Net<br/>Visual Basic .Net | ✓ | ✓ | ✓ | ✓ |
 
 ## Getting started with package NuGet Daikoz.SQLWrapper
 
@@ -162,7 +162,7 @@ Copyright (C) DAIKOZ. All rights reserved.
 USAGE:
 Generate code from sql request:
   SQLWrapper wrapper-sql --inputfiles request1.mysql request2.mysql --outputfile mysqlrequest.cs --params
-  namespace=DAIKOZ classname=SQLWrapper --schema sqlwrapper-cachedb.xml --xslt Template\CSharp\charpADO.xslt
+  namespace=DAIKOZ classname=SQLWrapper --schema sqlwrapper-cachedb.xml --xslt Template\sql-cshapr-ado.xslt
 
   -s, --schema         Required. XML file of cache database schema to load. Generate it before with database command
 
@@ -186,7 +186,7 @@ Generate code from sql request:
 **Example:**
 
 ``` dos
-SQLWrapper wrapper-sql --schema sqlwrapper-cachedb.xml --inputfiles request1.mysql request2.mysql --outputfile mysqlrequest.cs --params namespace=DAIKOZ classname=SQLWrapper --xslt template\csharp\ADO.xslt
+SQLWrapper wrapper-sql --schema sqlwrapper-cachedb.xml --inputfiles request1.mysql request2.mysql --outputfile mysqlrequest.cs --params namespace=DAIKOZ classname=SQLWrapper --xslt template\sql-cshapr-ado.xslt
 ```
 
 This command create a **SQL wrapper** from **database** for 2 queries defined in **inputfiles**. It use the **XSLT** file to generate the **outputfile**. **params** give parameters defined in **XLST** file (here the namespace).
@@ -201,7 +201,7 @@ SQL Wrapper Generator 2.0.1.1+fe5be6893053615a1ac4a351bb4da3c110a6355d
 Copyright (C) DAIKOZ. All rights reserved.
 USAGE:
 Generate code helper to access database:
-  SQLWrapper wrapper-database --outputfile helper.cs --schema sqlwrapper-cachedb.xml --xslt Template\CSharp\helper.xslt
+  SQLWrapper wrapper-database --outputfile helper.cs --schema sqlwrapper-cachedb.xml --xslt Template\database-csharp-ado.xslt
 
   -s, --schema         Required. XML file of cache database schema to load. Generate it before with database command
 
@@ -223,7 +223,7 @@ Generate code helper to access database:
 **Example:**
 
 ``` dos
-SQLWrapper wrapper-database --schema sqlwrapper-cachedb.xml --outputfile MyDatabaseHelper.cs --xslt template\csharp\helper.xslt
+SQLWrapper wrapper-database --schema sqlwrapper-cachedb.xml --outputfile MyDatabaseHelper.cs --xslt template\database-csharp-ado.xslt
 ```
 
 This command create a **helper** for **database**. It use **XLST** file to generate the **outputfile**.
@@ -235,4 +235,12 @@ In template section, you can found several XLST files to generate SQL and databa
 You can create or modify your own and use it with **--xslt** parameter.
 DAIKOZ can help you to create your own XLST. Contact us.
 
+### Template available
 
+Generate a **database helper** from XML Schema in:
+- C# .Net: **database-csharp-ado.xslt**
+- Visual Basic .Net: **database-vb-ado.xslt**
+
+Generate a **SQL query wrapper** from XML schema and SQL query in:
+- C# .Net: **sql-cshapr-ado.xslt**
+- Visual Basic: **sql-vb-ado.xslt**

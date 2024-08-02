@@ -11,9 +11,9 @@
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<PackageIcon>sqlwrapper.png</PackageIcon>
 		<Title>SQL Wrapper Generator</Title>
-		<Version>2.1.1</Version>
-		<AssemblyVersion>2.1.1</AssemblyVersion>
-		<FileVersion>2.1.1</FileVersion>
+		<Version>2.2</Version>
+		<AssemblyVersion>2.2</AssemblyVersion>
+		<FileVersion>2.2</FileVersion>
 		<Authors>DAIKOZ</Authors>
 		<Description>SQLWrapper makes it easier to create code wrappers for SQL queries. It's a powerful tool that helps speed up development by reducing the need for manual coding. It works with databases various SQL database (MySQL, MariaDB, ...), checking the syntax and performance of SQL queries before you execute them.
 
@@ -31,16 +31,24 @@ Overall, DAIKOZ.SQLWrapper is a handy tool for making SQL code easier to work wi
 		<PackageReleaseNotes>
 			# Changelog
 
-			## [2.1.1] (2024-07-17)
+			## [2.2] (2024-08-02)
 
-			### Daikoz.SQLWrapper NuGet Package
-			- Fix issue: database name is not provided to XSLT.
+			### SQLWrapper
+			- Replace isnull by nullable attribute for database type
 
 			### Template
-			- **Database C#**: Fix return value for function
-			- **Database C#**: Fix column, table and method name to follow microft recommendation to avoid message IDEXXXX
-			- **Database C#**: Move UpdateIfModified method in database class to avoid compilation error with several database helper
-			- **SQL C# ADO**: Fix spaces
+			- **Database VB**: add new template database-vb-ado.xslt and sql-vb-ado.xslt to generate Visual Basic .Net wrapper
+			- Unify isnull and nullable for database type
+			- **sql-csharp-ado.xslt**: Read data asyn (await reader.ReadAsync())
+			- **Rename template** to use this rules:
+				* database or sql: use database for template to apply to all database and use sql for template to apply on SQL queries
+				* language: charp, vb, ...
+				* type: ado
+			- **Template available**:
+				* **database-csharp-ado.xslt**: generate a database helper from schema xml in C# ADO
+				* **database-vb-ado.xslt**: generate a database helper from schema xml in Visual Basic ADO
+				* **sql-cshapr-ado.xslt**: generate a SQL query wrapper from schema xml and SQL query in C# ADO
+				* **sql-vb-ado.xslt**: generate a SQL query wrapper from schema xml and SQL query in Visual Basic ADO
 		</PackageReleaseNotes>
 		<PackageLicenseFile>license.txt</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>

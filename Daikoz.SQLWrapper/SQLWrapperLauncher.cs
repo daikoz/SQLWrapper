@@ -15,6 +15,13 @@ namespace Daikoz.SQLWrapper
 {
     public class SQLWrapperLauncher
     {
+        public enum LanguageTarget
+        {
+            csharp,
+            visualbasic,
+            fsharp
+        }
+
         public List<string> GeneratedSources { get; set; } = [];
 
         private readonly string _ConfigurationFilePath;
@@ -23,17 +30,19 @@ namespace Daikoz.SQLWrapper
         private readonly SQLWrapperConfig _Config;
         private readonly TaskLoggingHelper _Log;
         private readonly bool _IsCleanning;
+        private readonly LanguageTarget _LanguageTarget;
 
         private readonly Regex _RegexDatabaseName = new("^[a-zA-Z0-9-_]+$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         private readonly Regex _RegexSQLWrapperErrorLog = new(@"(?<code>SW[0-9]{5}):(?<message>.*)", RegexOptions.Compiled);
         private readonly Regex _RegexSQLWrapperErrorSQL = new(@"(?<filepath>.*):\((?<line>.*),(?<position>\d+)\):(?<code>[^:]*):(?<message>.*)", RegexOptions.Compiled);
 
-        public SQLWrapperLauncher(string configurationFilePath, string rootNamespace, TaskLoggingHelper log, bool isCleanning)
+        public SQLWrapperLauncher(string configurationFilePath, string rootNamespace, TaskLoggingHelper log, bool isCleanning, LanguageTarget languageTarget)
         {
             _ConfigurationFilePath = configurationFilePath;
             _RootNamespace = rootNamespace;
             _Log = log ?? throw new ArgumentNullException(nameof(log));
             _IsCleanning = isCleanning;
+            _LanguageTarget = languageTarget;
 
             try
             {
@@ -135,8 +144,11 @@ namespace Daikoz.SQLWrapper
         {
             // Find sqlwrapper executable path
             string assemblyDirectory = GetAssemblyDirectory();
-            string sqlWrapperPath = Path.Combine(assemblyDirectory, "tools", "SQLWrapper");
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) sqlWrapperPath += ".exe";
+            string sqlWrapperPath = Path.Combine(assemblyDirectory, "tools", "bin");
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                sqlWrapperPath = Path.Combine(sqlWrapperPath, "win-x64", "SQLWrapper.exe");
+            else
+                sqlWrapperPath = Path.Combine(sqlWrapperPath, "linux-x64", "SQLWrapper");
             if (!File.Exists(sqlWrapperPath))
                 throw new SQLWrapperException(ErrorMessage.MsgConfigurationSQLWrapperToolNotFound.ErrorCode, logFile, String.Format(ErrorMessage.MsgConfigurationSQLWrapperToolNotFound.Message, sqlWrapperPath));
 
@@ -326,7 +338,12 @@ namespace Daikoz.SQLWrapper
 
                 // XSLT
                 string assemblyDirectory = GetAssemblyDirectory();
-                string xlstFilePath = Path.Combine(assemblyDirectory, "tools", "template", "csharp", "helper.xslt");
+                string xlstFilePath = _LanguageTarget switch
+                {
+                    LanguageTarget.visualbasic => Path.Combine(assemblyDirectory, "tools", "template", "database-vb-ado.xslt"),
+                    _ => Path.Combine(assemblyDirectory, "tools", "template", "database-csharp-ado.xslt")
+                };
+
                 if (wrapperdb.XLST != null && !string.IsNullOrWhiteSpace(wrapperdb.XLST))
                     xlstFilePath = wrapperdb.XLST;
                 if (!Path.IsPathRooted(xlstFilePath))
@@ -404,7 +421,13 @@ namespace Daikoz.SQLWrapper
             {
                 foreach (string sqlFilePath in listSQLFiles)
                 {
-                    string codeFilePath = sqlFilePath + ".cs";
+                    string codeFilePath = sqlFilePath + (
+                        _LanguageTarget switch
+                        {
+                            LanguageTarget.visualbasic => ".vb",
+                            LanguageTarget.fsharp => ".f",
+                            _ => ".cs"
+                        });
                     LogMessage("Remove wrapper: " + codeFilePath);
                     File.Delete(codeFilePath);
                 }
@@ -424,7 +447,11 @@ namespace Daikoz.SQLWrapper
 
                 // XSLT
                 string assemblyDirectory = GetAssemblyDirectory();
-                string xlstFilePath = Path.Combine(assemblyDirectory, "tools", "template", "csharp", "ADO.xslt");
+                string xlstFilePath = _LanguageTarget switch
+                {
+                    LanguageTarget.visualbasic => Path.Combine(assemblyDirectory, "tools", "template", "sql-vb-ado.xslt"),
+                    _ => Path.Combine(assemblyDirectory, "tools", "template", "sql-csharp-ado.xslt")
+                };
                 if (wrappersql.XLST != null && !string.IsNullOrWhiteSpace(wrappersql.XLST))
                     xlstFilePath = wrappersql.XLST;
                 if (!Path.IsPathRooted(xlstFilePath))
@@ -443,7 +470,13 @@ namespace Daikoz.SQLWrapper
 
                 foreach (string sqlFilePath in listSQLFiles)
                 {
-                    string outputFilePath = sqlFilePath + ".cs";
+                    string outputFilePath = sqlFilePath + (
+                        _LanguageTarget switch
+                        {
+                            LanguageTarget.visualbasic => ".vb",
+                            LanguageTarget.fsharp => ".f",
+                            _ => ".cs"
+                        });
 
                     // Check uptodate
                     if (File.Exists(outputFilePath))

@@ -18,13 +18,19 @@
 	</PropertyGroup>
 
 	<!-- 
-	Add cs file under .sql or mysql file 
+	Add cs/vb file under .sql or mysql file 
 	-->
 	<ItemGroup>
 		<Compile Update="**\*.mysql.cs">
 			<DependentUpon>$([System.String]::Copy('%(Filename)'))</DependentUpon>
 		</Compile>
 		<Compile Update="**\*.sql.cs">
+			<DependentUpon>$([System.String]::Copy('%(Filename)'))</DependentUpon>
+		</Compile>
+		<Compile Update="**\*.mysql.vb">
+			<DependentUpon>$([System.String]::Copy('%(Filename)'))</DependentUpon>
+		</Compile>
+		<Compile Update="**\*.sql.vb">
 			<DependentUpon>$([System.String]::Copy('%(Filename)'))</DependentUpon>
 		</Compile>
 	</ItemGroup>
@@ -35,7 +41,7 @@
 	<UsingTask TaskName="Daikoz.SQLWrapper.SQLWrapperTask" AssemblyFile="..\lib\netstandard2.0\Daikoz.SQLWrapper.dll" />
 
 	<Target Name="SQLWrapperBuild" BeforeTargets="CoreCompile">
-		<Daikoz.SQLWrapper.SQLWrapperTask ConfigurationFilePath="$(MSBuildProjectDirectory)\sqlwrapper.json" IsCleanning="false" RootNamespace="$(RootNamespace)">
+		<Daikoz.SQLWrapper.SQLWrapperTask ConfigurationFilePath="$(MSBuildProjectDirectory)\sqlwrapper.json" IsCleanning="false" RootNamespace="$(RootNamespace)" LanguageTarget="$(MSBuildProjectExtension)">
 			<Output TaskParameter="GeneratedSources" ItemName="GeneratedSources" />
 		</Daikoz.SQLWrapper.SQLWrapperTask>
 		<ItemGroup>
@@ -44,7 +50,7 @@
 	</Target>
 
 	<Target Name="SQLWrapperClean" AfterTargets="BeforeClean">
-		<Daikoz.SQLWrapper.SQLWrapperTask ConfigurationFilePath="$(MSBuildProjectDirectory)\sqlwrapper.json" IsCleanning="true" RootNamespace="$(RootNamespace)" />
+		<Daikoz.SQLWrapper.SQLWrapperTask ConfigurationFilePath="$(MSBuildProjectDirectory)\sqlwrapper.json" IsCleanning="true" RootNamespace="$(RootNamespace)" LanguageTarget="$(MSBuildProjectExtension)" />
 	</Target>
 
 </Project>

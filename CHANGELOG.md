@@ -1,5 +1,25 @@
 # Changelog
 
+## [2.2] (2024-08-02)
+
+### SQLWrapper
+- Replace isnull by nullable attribute for database type
+
+### Template
+- **Database VB**: add new template database-vb-ado.xslt and sql-vb-ado.xslt to generate Visual Basic .Net wrapper
+- Unify isnull and nullable for database type
+- **sql-csharp-ado.xslt**: Read data asyn (await reader.ReadAsync())
+- **Rename template** to use this rules:
+    - database or sql: use database for template to apply to all database and use sql for template to apply on SQL queries 
+    - language: charp, vb, ...
+    - type: ado
+- **Template available**:
+    - **database-csharp-ado.xslt**: generate a database helper from schema xml in C# ADO
+    - **database-vb-ado.xslt**: generate a database helper from schema xml in Visual Basic ADO
+    - **sql-cshapr-ado.xslt**: generate a SQL query wrapper from schema xml and SQL query in C# ADO
+    - **sql-vb-ado.xslt**: generate a SQL query wrapper from schema xml and SQL query in Visual Basic ADO
+
+
 ## [2.1.1] (2024-07-17)
 
 ### Daikoz.SQLWrapper NuGet Package
