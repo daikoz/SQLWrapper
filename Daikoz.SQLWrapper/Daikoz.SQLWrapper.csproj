@@ -11,9 +11,9 @@
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<PackageIcon>sqlwrapper.png</PackageIcon>
 		<Title>SQL Wrapper Generator</Title>
-		<Version>2.2</Version>
-		<AssemblyVersion>2.2</AssemblyVersion>
-		<FileVersion>2.2</FileVersion>
+		<Version>2.2.1</Version>
+		<AssemblyVersion>2.2.1</AssemblyVersion>
+		<FileVersion>2.2.1</FileVersion>
 		<Authors>DAIKOZ</Authors>
 		<Description>SQLWrapper makes it easier to create code wrappers for SQL queries. It's a powerful tool that helps speed up development by reducing the need for manual coding. It works with databases various SQL database (MySQL, MariaDB, ...), checking the syntax and performance of SQL queries before you execute them.
 
@@ -31,24 +31,10 @@ Overall, DAIKOZ.SQLWrapper is a handy tool for making SQL code easier to work wi
 		<PackageReleaseNotes>
 			# Changelog
 
-			## [2.2] (2024-08-02)
+			## [2.2.1] (2025-04-20)
 
 			### SQLWrapper
-			- Replace isnull by nullable attribute for database type
-
-			### Template
-			- **Database VB**: add new template database-vb-ado.xslt and sql-vb-ado.xslt to generate Visual Basic .Net wrapper
-			- Unify isnull and nullable for database type
-			- **sql-csharp-ado.xslt**: Read data asyn (await reader.ReadAsync())
-			- **Rename template** to use this rules:
-				* database or sql: use database for template to apply to all database and use sql for template to apply on SQL queries
-				* language: charp, vb, ...
-				* type: ado
-			- **Template available**:
-				* **database-csharp-ado.xslt**: generate a database helper from schema xml in C# ADO
-				* **database-vb-ado.xslt**: generate a database helper from schema xml in Visual Basic ADO
-				* **sql-cshapr-ado.xslt**: generate a SQL query wrapper from schema xml and SQL query in C# ADO
-				* **sql-vb-ado.xslt**: generate a SQL query wrapper from schema xml and SQL query in Visual Basic ADO
+			- Fix #8 Wrong CSharp code generate with a SELECT with no WHERE #8
 		</PackageReleaseNotes>
 		<PackageLicenseFile>license.txt</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
@@ -75,7 +61,7 @@ Overall, DAIKOZ.SQLWrapper is a handy tool for making SQL code easier to work wi
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.10.4" />
+		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.12.6" />
 	</ItemGroup>
 
 	<ItemGroup>

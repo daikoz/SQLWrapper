@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.2.1] (2025-04-20)
+
+### SQLWrapper
+- Fix #8 Wrong CSharp code generate with a SELECT with no WHERE
+
+
 ## [2.2] (2024-08-02)
 
 ### SQLWrapper
