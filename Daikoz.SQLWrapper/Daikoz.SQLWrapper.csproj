@@ -61,7 +61,7 @@ Overall, DAIKOZ.SQLWrapper is a handy tool for making SQL code easier to work wi
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.12.6" />
+		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.12.50" />
 	</ItemGroup>
 
 	<ItemGroup>
