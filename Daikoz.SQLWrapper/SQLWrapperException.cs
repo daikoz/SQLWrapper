@@ -2,10 +2,30 @@
 
 namespace Daikoz.SQLWrapper
 {
-    internal class SQLWrapperException(string errorCode, string file, string errorMessage) : Exception
+    public class SQLWrapperException : Exception
     {
-        public string ErrorCode { get; set; } = errorCode;
-        public string File { get; set; } = file;
-        public string ErrorMessage { get; set; } = errorMessage;
+        public string ErrorCode { get; set; } = "";
+        public string File { get; set; } = "";
+        public string ErrorMessage { get; set; } = "";
+
+        public SQLWrapperException()
+        {
+        }
+
+        public SQLWrapperException(string message) : base(message)
+        {
+        }
+
+        public SQLWrapperException(string message, Exception innerException) : base(message, innerException)
+        {
+        }
+
+        public SQLWrapperException(string errorCode, string file, string errorMessage)
+        {
+            ErrorCode = errorCode;
+            File = file;
+            ErrorMessage = errorMessage;
+        }
+
     }
 }

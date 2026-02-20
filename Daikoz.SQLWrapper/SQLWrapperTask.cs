@@ -1,8 +1,8 @@
 ﻿using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using System;
+using System.Collections.ObjectModel;
 using System.IO;
-using static Daikoz.SQLWrapper.SQLWrapperLauncher;
 
 namespace Daikoz.SQLWrapper
 {
@@ -41,12 +41,12 @@ namespace Daikoz.SQLWrapper
                     ".fsharp" => SQLWrapperLauncher.LanguageTarget.fsharp,
                     _ => SQLWrapperLauncher.LanguageTarget.csharp,
                 };
-                Daikoz.SQLWrapper.SQLWrapperLauncher sqlWrapper = new(ConfigurationFilePath, RootNamespace, Log, IsCleanning, languageTarget);
+                SQLWrapperLauncher sqlWrapper = new(ConfigurationFilePath, RootNamespace, Log, IsCleanning, languageTarget);
                 bool result = sqlWrapper.Execute();
                 GeneratedSources = [.. sqlWrapper.GeneratedSources];
                 return result;
             }
-            catch (Daikoz.SQLWrapper.SQLWrapperException ex)
+            catch (SQLWrapperException ex)
             {
                 Log.LogError(ErrorMessage.Category, ex.ErrorCode, "", "", ex.File, 0, 0, 0, 0, ex.ErrorMessage.Trim(), null);
             }

@@ -2,34 +2,56 @@
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
+		<PlatformTarget>x64</PlatformTarget>
+		<Nullable>enable</Nullable>
 		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
+		<AnalysisMode>All</AnalysisMode>
 		<EnableNETAnalyzers>True</EnableNETAnalyzers>
 		<AnalysisLevel>latest</AnalysisLevel>
 		<LangVersion>latest</LangVersion>
-		<Nullable>enable</Nullable>
 
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<PackageIcon>sqlwrapper.png</PackageIcon>
 		<Title>SQL Wrapper Generator</Title>
-		<Version>2.2.1</Version>
-		<AssemblyVersion>2.2.1</AssemblyVersion>
-		<FileVersion>2.2.1</FileVersion>
+		<Version>2.2.4</Version>
+		<AssemblyVersion>2.2.4</AssemblyVersion>
+		<FileVersion>2.2.4</FileVersion>
 		<Authors>DAIKOZ</Authors>
-		<Description>SQLWrapper makes it easier to create code wrappers for SQL queries. It's a powerful tool that helps speed up development by reducing the need for manual coding. It works with databases various SQL database (MySQL, MariaDB, ...), checking the syntax and performance of SQL queries before you execute them.
+		<Description>SQLWrapper makes it easier to create code wrappers for SQL queries. It's a
+			powerful tool that helps speed up development by reducing the need for manual coding. It
+			works with databases various SQL database (MySQL, MariaDB, ...), checking the syntax and
+			performance of SQL queries before you execute them.
 
-It's important to note that SQLWrapper isn't like other tools that map objects to database tables (ORMs). Instead, it directly generates code from your SQL queries and database structure, which performs better than tools like LINQ, EntityFramework, dapper, ... and doesn't have the same limitations.
+			It's important to note that SQLWrapper isn't like other tools that map objects to
+			database tables (ORMs). Instead, it directly generates code from your SQL queries and
+			database structure, which performs better than tools like LINQ, EntityFramework, dapper,
+			... and doesn't have the same limitations.
 
-One feature is that it can look at your database's structure to check if your SQL queries are correct, and it can create an XML file listing all the data your queries need and return. Then, you can use XSLT templates to turn that XML into code in languages like C#, and more.
+			One feature is that it can look at your database's structure to check if your SQL
+			queries are correct, and it can create an XML file listing all the data your queries
+			need and return. Then, you can use XSLT templates to turn that XML into code in
+			languages like C#, and more.
 
-Overall, DAIKOZ.SQLWrapper is a handy tool for making SQL code easier to work with, saving time, and helping you write better code.</Description>
+			Overall, DAIKOZ.SQLWrapper is a handy tool for making SQL code easier to work with,
+			saving time, and helping you write better code.</Description>
 		<Copyright>Copyright (c) DAIKOZ. All rights reserved.</Copyright>
 		<PackageProjectUrl>https://www.sqlwrapper.com</PackageProjectUrl>
 		<PackageReadmeFile>readme.md</PackageReadmeFile>
 		<RepositoryUrl>https://github.com/daikoz/SQLWrapper</RepositoryUrl>
 		<RepositoryType>github</RepositoryType>
-		<PackageTags>sql;wrapper;sqlwrapper;ORM;dapper;linq;database;mysql;mariadb;server;mssql;pgsql;sqlite;postgres;postgresql;query;builder</PackageTags>
+		<PackageTags>
+			sql;wrapper;sqlwrapper;ORM;dapper;linq;database;mysql;mariadb;server;mssql;pgsql;sqlite;postgres;postgresql;query;builder</PackageTags>
 		<PackageReleaseNotes>
 			# Changelog
+
+			## [2.2.4] (2027-02-20)
+			- Fix minor: verbose no take account in some case.
+
+			## [2.2.3] (2026-02-15)
+			- Don't copy Daikoz.SQLWrapper.dll and sqlwrapper.json in output directory. It is usesuf only for buildtime.
+
+			## [2.2.2] (2025-11-01)
+			- Update nuget packages followed security issue.
 
 			## [2.2.1] (2025-04-20)
 
@@ -39,29 +61,31 @@ Overall, DAIKOZ.SQLWrapper is a handy tool for making SQL code easier to work wi
 		<PackageLicenseFile>license.txt</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 
+		<SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+		<IncludeBuildOutput>false</IncludeBuildOutput>
 	</PropertyGroup>
 
 	<Target Name="PostClean" AfterTargets="Clean">
-		<RemoveDir Directories="$(BaseOutputPath)" />
-		<RemoveDir Directories="$(BaseIntermediateOutputPath)" />
+		<RemoveDir Directories="$(MSBuildProjectDirectory)\$(BaseOutputPath)" />
+		<RemoveDir Directories="$(MSBuildProjectDirectory)\$(BaseIntermediateOutputPath)" />
 	</Target>
 
-	<ItemGroup>
-		<Content Include="build\*.targets" PackagePath="build\" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Content Include="tools/**/*.*" PackagePath="tools\" />
-	</ItemGroup>
+	<Target Name="CopyReadme" BeforeTargets="BeforeBuild">
+		<Copy SourceFiles="..\..\..\SQLWrapper\README.md" DestinationFolder="$(MSBuildProjectDirectory)" />
+	</Target>
 
 	<ItemGroup>
 		<None Include="..\..\Web\SQLWrapper.com\wwwroot\img\sqlwrapper.png" Pack="true" PackagePath="\" />
 		<None Include="readme.md" Pack="true" PackagePath="\" />
 		<None Include="license.txt" Pack="true" PackagePath="\" />
+		<Content Include="build\*.targets" PackagePath="build" />
+		<Content Include="build\*.props" PackagePath="build" />
+		<None Include="$(OutputPath)$(AssemblyName).dll" Pack="true" PackagePath="build" />
+		<Content Include="tools/**/*.*" PackagePath="tools\" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.12.6" />
+		<PackageReference Include="Microsoft.Build.Utilities.Core" Version="18.0.2" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -78,9 +102,5 @@ Overall, DAIKOZ.SQLWrapper is a handy tool for making SQL code easier to work wi
 			<LastGenOutput>Resource.Designer.cs</LastGenOutput>
 		</EmbeddedResource>
 	</ItemGroup>
-
-	<Target Name="CopyReadme" BeforeTargets="BeforeBuild">
-		<Copy SourceFiles="..\..\..\SQLWrapper\README.md" DestinationFolder="$(MSBuildProjectDirectory)" />
-	</Target>
 
 </Project>

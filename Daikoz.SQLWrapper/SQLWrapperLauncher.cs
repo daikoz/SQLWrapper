@@ -2,6 +2,7 @@
 using Microsoft.Build.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -13,9 +14,9 @@ using System.Text.RegularExpressions;
 
 namespace Daikoz.SQLWrapper
 {
-    public class SQLWrapperLauncher
+    internal class SQLWrapperLauncher
     {
-        public enum LanguageTarget
+        internal enum LanguageTarget
         {
             csharp,
             visualbasic,
@@ -54,14 +55,14 @@ namespace Daikoz.SQLWrapper
                     if (config is SQLWrapperConfig sqlConfig)
                         _Config = sqlConfig;
                     else
-                        throw new Exception();
+                        throw new InvalidOperationException();
                 }
 
                 _ConfigurationModifiedDate = new FileInfo(configurationFilePath).LastWriteTimeUtc;
             }
             catch (Exception ex)
             {
-                throw new SQLWrapperException(ErrorMessage.MsgConfigurationWrong.ErrorCode, configurationFilePath, String.Format(ErrorMessage.MsgConfigurationWrong.Message, ex.Message));
+                throw new SQLWrapperException(ErrorMessage.MsgConfigurationWrong.ErrorCode, configurationFilePath, string.Format(ErrorMessage.MsgConfigurationWrong.Message, ex.Message));
             }
         }
 
@@ -73,7 +74,7 @@ namespace Daikoz.SQLWrapper
 
         private static string DefaultDatabaseFilePath(string databaseName)
         {
-            return Path.Combine(System.Environment.CurrentDirectory, "obj", databaseName + ".sqlwrapper.db");
+            return Path.Combine(Environment.CurrentDirectory, "obj", databaseName + ".sqlwrapper.db");
         }
 
         private string GetDatabaseFilePath(string? databaseName)
@@ -101,7 +102,7 @@ namespace Daikoz.SQLWrapper
             if (!Directory.Exists(Path.Combine(assemblyDirectory, "tools")))
             {
                 // nuget
-                assemblyDirectory = Path.Combine(assemblyDirectory, "..", "..");
+                assemblyDirectory = Path.Combine(assemblyDirectory, "..");
             }
             return assemblyDirectory;
         }
@@ -150,7 +151,7 @@ namespace Daikoz.SQLWrapper
             else
                 sqlWrapperPath = Path.Combine(sqlWrapperPath, "linux-x64", "SQLWrapper");
             if (!File.Exists(sqlWrapperPath))
-                throw new SQLWrapperException(ErrorMessage.MsgConfigurationSQLWrapperToolNotFound.ErrorCode, logFile, String.Format(ErrorMessage.MsgConfigurationSQLWrapperToolNotFound.Message, sqlWrapperPath));
+                throw new SQLWrapperException(ErrorMessage.MsgConfigurationSQLWrapperToolNotFound.ErrorCode, logFile, string.Format(ErrorMessage.MsgConfigurationSQLWrapperToolNotFound.Message, sqlWrapperPath));
 
             LogMessage(string.Format("Launch sqlwrapper: '{0} {1}'", sqlWrapperPath, arguments));
 
@@ -239,7 +240,7 @@ namespace Daikoz.SQLWrapper
                         throw new SQLWrapperException(code, logFile, error.Trim());
                     }
                     else
-                        throw new SQLWrapperException(ErrorMessage.MsgSQLWrapperExecution.ErrorCode, logFile, String.Format(ErrorMessage.MsgSQLWrapperExecution.Message, standartError));
+                        throw new SQLWrapperException(ErrorMessage.MsgSQLWrapperExecution.ErrorCode, logFile, string.Format(ErrorMessage.MsgSQLWrapperExecution.Message, standartError));
                 }
 
             }
@@ -259,7 +260,7 @@ namespace Daikoz.SQLWrapper
                 cacheFilePath = DefaultDatabaseFilePath(schema.Name);
 
             if (!Path.IsPathRooted(cacheFilePath))
-                cacheFilePath = Path.Combine(System.Environment.CurrentDirectory, cacheFilePath);
+                cacheFilePath = Path.Combine(Environment.CurrentDirectory, cacheFilePath);
 
             LogMessage("Cache Database in '" + cacheFilePath + "'");
             if (_IsCleanning)
@@ -320,7 +321,7 @@ namespace Daikoz.SQLWrapper
 
             string outputFilePath = wrapperdb.OutputFilePath;
             if (!Path.IsPathRooted(outputFilePath))
-                outputFilePath = Path.Combine(System.Environment.CurrentDirectory, outputFilePath);
+                outputFilePath = Path.Combine(Environment.CurrentDirectory, outputFilePath);
 
             // Cleaning
             if (_IsCleanning)

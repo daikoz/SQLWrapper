@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<!-- 
+	Don't copy DLL to output directory 
+	-->
+	<ItemGroup>
+		<PackageReference Update="Daikoz.SQLWrapper" PrivateAssets="All" />
+	</ItemGroup>
+
+	<!--
+    Visual Studio has its own incremental build logic on top of MSBuild's that
+    will skip targets if it thinks inputs haven't changed. SQL file are not included
+	in projet. Add DisableFastUpToDateCheck to force to call task each time.
+	-->
+	<PropertyGroup>
+		<DisableFastUpToDateCheck>True</DisableFastUpToDateCheck>
+	</PropertyGroup>
+
+	<!-- 
+	Add cs/vb file under .sql or mysql file 
+	-->
+	<ItemGroup>
+		<Compile Update="**\*.mysql.cs">
+			<DependentUpon>$([System.String]::Copy('%(Filename)'))</DependentUpon>
+		</Compile>
+		<Compile Update="**\*.sql.cs">
+			<DependentUpon>$([System.String]::Copy('%(Filename)'))</DependentUpon>
+		</Compile>
+		<Compile Update="**\*.mysql.vb">
+			<DependentUpon>$([System.String]::Copy('%(Filename)'))</DependentUpon>
+		</Compile>
+		<Compile Update="**\*.sql.vb">
+			<DependentUpon>$([System.String]::Copy('%(Filename)'))</DependentUpon>
+		</Compile>
+	</ItemGroup>
+
+</Project>
